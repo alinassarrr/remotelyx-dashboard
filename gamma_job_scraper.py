@@ -6,6 +6,7 @@ A clean, modular web scraper for extracting job data from gamma.app
 
 import json
 import re
+import os
 from datetime import datetime
 from typing import Dict, Any, List, Optional, Tuple
 from urllib.parse import urlparse
@@ -13,6 +14,7 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+import ollama
 
 # =============================================================================
 # CONFIGURATION
@@ -20,6 +22,7 @@ from selenium.webdriver.chrome.options import Options
 
 # API Configuration
 API_URL = "http://localhost:5000/api/jobs"
+OLLAMA_MODEL = "llama3.2"  # Free local AI model
 
 # Skill Dictionaries
 TECH_SKILLS = [
@@ -120,7 +123,129 @@ class BrowserManager:
             return None
 
 # =============================================================================
-# DATA EXTRACTION
+# AI-POWERED DATA EXTRACTION
+# =============================================================================
+
+class AIDataExtractor:
+    """FREE AI-powered job data extraction using Ollama"""
+    
+    def __init__(self):
+        # No API key needed - completely free!
+        pass
+    
+    @staticmethod
+    def extract_job_data(html_content: str, url: str) -> Dict[str, Any]:
+        """Extract job data using AI analysis"""
+        
+        # Clean and prepare the HTML content
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        # Remove script and style elements
+        for script in soup(["script", "style"]):
+            script.decompose()
+        
+        # Get clean text content
+        text_content = soup.get_text()
+        
+        # Clean up whitespace
+        lines = (line.strip() for line in text_content.splitlines())
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+        clean_text = ' '.join(chunk for chunk in chunks if chunk)
+        
+        # Truncate if too long (OpenAI has token limits)
+        if len(clean_text) > 8000:
+            clean_text = clean_text[:8000] + "..."
+        
+        # AI prompt for job data extraction
+        prompt = f"""
+        You are a job data extraction expert. Analyze the following job posting and extract ALL available information.
+
+        CRITICAL: You MUST extract tech skills, soft skills, and a detailed description. Look carefully through the entire content.
+
+        Return ONLY a valid JSON object with these exact fields:
+
+        {{
+            "title": "exact job title",
+            "company": "company name",
+            "location": "job location or 'Remote' if remote work",
+            "employment_type": "Full-time/Part-time/Contract/Internship",
+            "salary": "salary range or amount (format as '50000$' or range like '50000$-60000$')",
+            "date_posted": "posting date in YYYY-MM-DD format or today's date",
+            "description": "detailed job description including responsibilities, requirements, and company info (200-400 words)",
+            "tech_skills": ["list all technical skills mentioned like Python, JavaScript, AWS, Docker, SQL, etc"],
+            "soft_skills": ["list all soft skills mentioned like communication, leadership, teamwork, problem-solving, etc"],
+            "seniority": "Junior/Mid/Senior based on experience requirements",
+            "job_link": "{url}"
+        }}
+
+        INSTRUCTIONS:
+        1. For TECH SKILLS: Look for programming languages, frameworks, tools, databases, cloud platforms, methodologies
+        2. For SOFT SKILLS: Look for interpersonal skills, leadership qualities, work style preferences
+        3. For DESCRIPTION: Summarize the role, responsibilities, requirements, and company information
+        4. If you can't find specific skills, look in the description text for implied skills
+        5. NEVER return empty arrays for skills - always find at least a few relevant ones
+
+        Job posting content:
+        {clean_text}
+
+        Return ONLY the JSON object, no other text.
+        """
+        
+        try:
+            # Use FREE Ollama local AI
+            response = ollama.chat(
+                model=OLLAMA_MODEL,
+                messages=[
+                    {"role": "system", "content": "You are a job data extraction expert. Always return valid JSON."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            
+            # Extract and parse the response
+            ai_response = response['message']['content'].strip()
+            
+            # Clean response (remove markdown formatting if present)
+            if ai_response.startswith("```json"):
+                ai_response = ai_response[7:-3]
+            elif ai_response.startswith("```"):
+                ai_response = ai_response[3:-3]
+            
+            # Parse JSON
+            job_data = json.loads(ai_response)
+            
+            return job_data
+            
+        except Exception as e:
+            print(f"❌ AI extraction failed: {e}")
+            # Fallback to basic extraction
+            return AIDataExtractor._fallback_extraction(clean_text, url)
+    
+    @staticmethod
+    def _fallback_extraction(text: str, url: str) -> Dict[str, Any]:
+        """Fallback extraction method if AI fails"""
+        # Simple regex-based extraction as fallback
+        title_match = re.search(r'(?:position|role|job):\s*([^\n]+)', text, re.IGNORECASE)
+        title = title_match.group(1).strip() if title_match else "Job Position"
+        
+        company_match = re.search(r'(?:company|organization):\s*([^\n]+)', text, re.IGNORECASE)
+        company = company_match.group(1).strip() if company_match else "Company"
+        
+        return {
+            "title": title,
+            "company": company,
+            "location": "Not specified",
+            "employment_type": "Full-time",
+            "salary": "Not specified",
+            "date_posted": datetime.now().strftime('%Y-%m-%d'),
+            "description": text[:300] + "..." if len(text) > 300 else text,
+            "tech_skills": [],
+            "soft_skills": [],
+            "seniority": "Mid",
+            "job_link": url
+        }
+
+# =============================================================================
+# LEGACY DATA EXTRACTION (kept for reference)
 # =============================================================================
 
 class DataExtractor:
@@ -625,8 +750,8 @@ class GammaJobScraper:
             print(f"❌ Error fetching page: {e}")
             return None
     
-    def scrape_job(self, url: str) -> Optional[Dict[str, Any]]:
-        """Main scraping function"""
+    def scrape_job(self, url: str, use_ai: bool = True) -> Optional[Dict[str, Any]]:
+        """Main scraping function with AI-powered extraction"""
         if not self.setup_driver():
             return None
         
@@ -635,32 +760,51 @@ class GammaJobScraper:
             if not soup:
                 return None
             
-            raw_data = DataExtractor.extract_all_fields(soup, url)
+            if use_ai:
+                print("🤖 Using AI-powered extraction...")
+                try:
+                    ai_extractor = AIDataExtractor()
+                    job_data = ai_extractor.extract_job_data(self.driver.page_source, url)
+                    print("✨ AI extraction successful!")
+                    print(f"🔍 Debug - AI extracted: {len(job_data.get('tech_skills', []))} tech skills, {len(job_data.get('soft_skills', []))} soft skills")
+                    print(f"💰 Debug - Salary: {job_data.get('salary', 'None')}")
+                    print(f"📄 Debug - Description length: {len(job_data.get('description', ''))}")
+                    return job_data
+                except Exception as e:
+                    print(f"⚠️ AI extraction failed, falling back to traditional method: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    use_ai = False
             
-            # Apply enrichment
-            seniority = DataEnricher.classify_seniority(raw_data['title'], raw_data['description'])
-            salary_data = DataEnricher.parse_salary(raw_data['salary'])
-            tech_skills, soft_skills = DataEnricher.extract_skills(raw_data['description'])
-            
-            # Create concise summary of description
-            original_description = raw_data['description']
-            concise_description = DataExtractor.create_concise_summary(original_description, max_length=200)
-            
-            # Build final JSON
-            job_data = {
-                "title": raw_data['title'],
-                "seniority": seniority,
-                "employment_type": raw_data['employment_type'],
-                "company": raw_data['company'],
-                "soft_skills": soft_skills,
-                "tech_skills": tech_skills,
-                "description": concise_description,
-                "salary": salary_data,
-                "date_posted": raw_data['date_posted'],
-                "job_link": url
-            }
-            
-            return job_data
+            if not use_ai:
+                print("🔧 Using traditional extraction...")
+                raw_data = DataExtractor.extract_all_fields(soup, url)
+                
+                # Apply enrichment
+                seniority = DataEnricher.classify_seniority(raw_data['title'], raw_data['description'])
+                salary_data = DataEnricher.parse_salary(raw_data['salary'])
+                tech_skills, soft_skills = DataEnricher.extract_skills(raw_data['description'])
+                
+                # Create concise summary of description
+                original_description = raw_data['description']
+                concise_description = DataExtractor.create_concise_summary(original_description, max_length=200)
+                
+                # Build final JSON
+                job_data = {
+                    "title": raw_data['title'],
+                    "seniority": seniority,
+                    "employment_type": raw_data['employment_type'],
+                    "company": raw_data['company'],
+                    "location": raw_data.get('location', 'Not specified'),
+                    "soft_skills": soft_skills,
+                    "tech_skills": tech_skills,
+                    "description": concise_description,
+                    "salary": salary_data,
+                    "date_posted": raw_data['date_posted'],
+                    "job_link": url
+                }
+                
+                return job_data
             
         except Exception as e:
             print(f"❌ Error during scraping: {e}")
