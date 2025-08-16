@@ -1,0 +1,206 @@
+/* Stats Cards Component Styles */
+
+/* Stats cards container */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* Individual stats card */
+.stats-card {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+}
+
+/* Stats card variants */
+.stats-card.active-jobs::before {
+    background: linear-gradient(90deg, var(--success-color), #28a745);
+}
+
+.stats-card.new-jobs::before {
+    background: linear-gradient(90deg, var(--info-color), #17a2b8);
+}
+
+.stats-card.avg-process::before {
+    background: linear-gradient(90deg, var(--warning-color), #ffc107);
+}
+
+.stats-card.success-rate::before {
+    background: linear-gradient(90deg, var(--success-color), #20c997);
+}
+
+/* Stats card content */
+.stats-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.stats-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-md);
+    opacity: 0.8;
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-sm);
+    line-height: 1;
+}
+
+.stats-label {
+    font-size: var(--font-size-base);
+    color: var(--dark-color);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Active jobs specific */
+.stats-card.active-jobs .stats-number {
+    color: var(--success-color);
+}
+
+/* New jobs specific */
+.stats-card.new-jobs .stats-number {
+    color: var(--info-color);
+}
+
+/* Average process specific */
+.stats-card.avg-process .stats-number {
+    color: var(--warning-color);
+}
+
+/* Success rate specific */
+.stats-card.success-rate .stats-number {
+    color: var(--success-color);
+}
+
+/* Trends section */
+.trends-section {
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: white;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.trends-section h3 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: var(--spacing-sm);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .stats-cards {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .stats-card {
+        padding: var(--spacing-md);
+    }
+    
+    .stats-icon {
+        font-size: 2.5rem;
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+    }
+    
+    .stats-label {
+        font-size: var(--font-size-base);
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-cards {
+        gap: var(--spacing-sm);
+    }
+    
+    .stats-card {
+        padding: var(--spacing-sm);
+    }
+    
+    .stats-icon {
+        font-size: 2rem;
+    }
+    
+    .stats-number {
+        font-size: 1.75rem;
+    }
+}
+
+/* Animation */
+.stats-card {
+    animation: fadeIn 0.6s ease-in;
+}
+
+.stats-card:nth-child(1) { animation-delay: 0.1s; }
+.stats-card:nth-child(2) { animation-delay: 0.2s; }
+.stats-card:nth-child(3) { animation-delay: 0.3s; }
+.stats-card:nth-child(4) { animation-delay: 0.4s; }
+
+.stats-card:hover .stats-icon {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+.stats-card:hover .stats-number {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+/* Hover effects */
+.stats-card:hover::before {
+    height: 6px;
+    transition: height 0.3s ease;
+}
+
+/* Loading state */
+.stats-card.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.stats-card.loading .stats-number {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

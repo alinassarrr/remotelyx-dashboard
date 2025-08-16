@@ -1,0 +1,226 @@
+:root {
+    /* Dark mode default */
+    --bg-primary: #111417;
+    --bg-secondary: #1c2127;
+    --bg-card: #1c2127;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --border-color: rgba(102, 254, 144, 0.2);
+    --border-hover: rgba(102, 254, 144, 0.4);
+    --input-bg: rgba(113, 116, 255, 0.1);
+    --input-border: rgba(113, 116, 255, 0.3);
+    --chip-bg: rgba(113, 116, 255, 0.1);
+    --chip-border: rgba(113, 116, 255, 0.3);
+    --skill-bar-bg: rgba(113, 116, 255, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+
+    /* Brand colors */
+    --brand-purple: #7174ff;
+    --brand-blue: #66b9ff;
+    --brand-green: #66fe90;
+    --brand-red: #ff2e00;
+    --brand-purple-dark: #47499e;
+    
+    /* Additional variables for components */
+    --primary-color: var(--brand-purple);
+    --secondary-color: var(--brand-blue);
+    --success-color: var(--brand-green);
+    --warning-color: var(--brand-red);
+    --info-color: var(--brand-blue);
+    --light-color: var(--bg-secondary);
+    --dark-color: var(--text-primary);
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --font-size-base: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 18px;
+    --font-size-xxl: 24px;
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    --shadow-sm: 0 2px 4px var(--shadow-color);
+    --shadow-md: 0 4px 8px var(--shadow-color);
+    --shadow-lg: 0 8px 16px var(--shadow-color);
+}
+
+body.light-mode {
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --text-primary: #1c2127;
+    --text-secondary: rgba(28, 33, 39, 0.7);
+    --text-muted: rgba(28, 33, 39, 0.5);
+    --border-color: #e2e8f0;
+    --border-hover: #cbd5e0;
+    --input-bg: #f7fafc;
+    --input-border: #e2e8f0;
+    --chip-bg: #f7fafc;
+    --chip-border: #e2e8f0;
+    --skill-bar-bg: #f0f4f8;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    
+    /* Additional variables for components */
+    --primary-color: var(--brand-purple);
+    --secondary-color: var(--brand-blue);
+    --success-color: var(--brand-green);
+    --warning-color: var(--brand-red);
+    --info-color: var(--brand-blue);
+    --light-color: var(--bg-secondary);
+    --dark-color: var(--text-primary);
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --font-size-base: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 18px;
+    --font-size-xxl: 24px;
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    --shadow-sm: 0 2px 4px var(--shadow-color);
+    --shadow-md: 0 4px 8px var(--shadow-color);
+    --shadow-lg: 0 8px 16px var(--shadow-color);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Theme-specific body classes */
+body.theme-light {
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --text-primary: #1c2127;
+    --text-secondary: rgba(28, 33, 39, 0.7);
+    --text-muted: rgba(28, 33, 39, 0.5);
+    --border-color: #e2e8f0;
+    --border-hover: #cbd5e0;
+    --input-bg: #f7fafc;
+    --input-border: #e2e8f0;
+    --chip-bg: #f7fafc;
+    --chip-border: #e2e8f0;
+    --skill-bar-bg: #f0f4f8;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body.theme-dark {
+    --bg-primary: #111417;
+    --bg-secondary: #1c2127;
+    --bg-card: #1c2127;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --border-color: rgba(102, 254, 144, 0.2);
+    --border-hover: rgba(102, 254, 144, 0.4);
+    --input-bg: rgba(113, 116, 255, 0.1);
+    --input-border: rgba(113, 116, 255, 0.3);
+    --chip-bg: rgba(113, 116, 255, 0.1);
+    --chip-border: rgba(113, 116, 255, 0.3);
+    --skill-bar-bg: rgba(113, 116, 255, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Streamlit-specific theme overrides */
+.stApp[data-theme="light"] {
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --text-primary: #1c2127;
+    --text-secondary: rgba(28, 33, 39, 0.7);
+    --text-muted: rgba(28, 33, 39, 0.5);
+    --border-color: #e2e8f0;
+    --border-hover: #cbd5e0;
+    --input-bg: #f7fafc;
+    --input-border: #e2e8f0;
+    --chip-bg: #f7fafc;
+    --chip-border: #e2e8f0;
+    --skill-bar-bg: #f0f4f8;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+.stApp[data-theme="dark"] {
+    --bg-primary: #111417;
+    --bg-secondary: #1c2127;
+    --bg-card: #1c2127;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.7);
+    --text-muted: rgba(255, 255, 255, 0.5);
+    --border-color: rgba(102, 254, 144, 0.2);
+    --border-hover: rgba(102, 254, 144, 0.4);
+    --input-bg: rgba(113, 116, 255, 0.1);
+    --input-border: rgba(113, 116, 255, 0.3);
+    --chip-bg: rgba(113, 116, 255, 0.1);
+    --chip-border: rgba(113, 116, 255, 0.3);
+    --skill-bar-bg: rgba(113, 116, 255, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Additional theme-aware component styles */
+.stats-card {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.navbar {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #1565c0 100%) !important;
+}
+
+.sidebar .sidebar-content {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.right-panel {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Smooth theme transitions */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Additional Streamlit overrides for better theme visibility */
+.stApp {
+    background-color: var(--bg-primary) !important;
+}
+
+.main .block-container {
+    background-color: var(--bg-primary) !important;
+}
+
+/* Force theme colors on common elements */
+.stMarkdown, .stText, .stMetric, .stSubheader, .stCaption {
+    color: var(--text-primary) !important;
+}
+
+/* Theme toggle visibility */
+div[data-testid="stVerticalBlock"] > div:first-child {
+    background-color: var(--bg-primary) !important;
+}

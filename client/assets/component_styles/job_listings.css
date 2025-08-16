@@ -1,0 +1,366 @@
+/* Job Listings Component Styles */
+
+/* Job listings container */
+.job-listings-container {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* Header styling */
+.job-listings-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.job-listings-header h3 {
+    color: var(--primary-color);
+    font-size: var(--font-size-xl);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* View toggle */
+.view-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg);
+    background: var(--light-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xs);
+    border: 1px solid var(--border-color);
+}
+
+.view-toggle .stRadio > div {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.view-toggle .stRadio > div > label {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.view-toggle .stRadio > div > label:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.view-toggle .stRadio > div > label[data-testid="stRadio"] {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+}
+
+/* Search and filters */
+.filters-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--light-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.filter-item label {
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: var(--font-size-base);
+}
+
+.filter-item input,
+.filter-item select {
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    transition: all 0.3s ease;
+}
+
+.filter-item input:focus,
+.filter-item select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(31, 119, 180, 0.2);
+}
+
+/* Job cards */
+.job-card {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+}
+
+.job-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.job-card:hover::before {
+    opacity: 1;
+}
+
+.job-header {
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.job-header h3 {
+    color: var(--primary-color);
+    margin: 0 0 var(--spacing-xs) 0;
+    font-size: var(--font-size-lg);
+}
+
+.job-header .company {
+    color: var(--secondary-color);
+    font-weight: 600;
+    font-size: var(--font-size-base);
+}
+
+.job-details {
+    margin-bottom: var(--spacing-md);
+}
+
+.job-details p {
+    margin: var(--spacing-xs) 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.job-details strong {
+    color: var(--dark-color);
+    min-width: 120px;
+}
+
+.job-skills {
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: var(--light-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.job-skills strong {
+    color: var(--primary-color);
+    margin-right: var(--spacing-sm);
+}
+
+.job-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+}
+
+.job-actions button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: var(--font-size-base);
+}
+
+.job-actions .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.job-actions .btn-primary:hover {
+    background-color: #1565c0;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.job-actions .btn-secondary {
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    border: 1px solid var(--border-color);
+}
+
+.job-actions .btn-secondary:hover {
+    background-color: #e9ecef;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Status indicators */
+.status-active {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.status-closed {
+    color: var(--warning-color);
+    font-weight: 600;
+}
+
+.status-draft {
+    color: var(--info-color);
+    font-weight: 600;
+}
+
+/* Summary stats */
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.summary-stat {
+    text-align: center;
+    padding: var(--spacing-md);
+    background: var(--light-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.summary-stat-value {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-xs);
+}
+
+.summary-stat-label {
+    font-size: var(--font-size-base);
+    color: var(--dark-color);
+    font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .job-listings-container {
+        padding: var(--spacing-md);
+    }
+    
+    .filters-section {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+    
+    .job-card {
+        padding: var(--spacing-md);
+    }
+    
+    .job-actions {
+        flex-direction: column;
+    }
+    
+    .summary-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .job-details p {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+    
+    .job-details strong {
+        min-width: auto;
+    }
+}
+
+/* Animation */
+.job-listings-container {
+    animation: fadeIn 0.6s ease-in;
+}
+
+.job-card {
+    animation: slideInUp 0.5s ease-out;
+}
+
+.job-card:nth-child(1) { animation-delay: 0.1s; }
+.job-card:nth-child(2) { animation-delay: 0.2s; }
+.job-card:nth-child(3) { animation-delay: 0.3s; }
+.job-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading states */
+.job-listings-container.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.job-card.loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+/* Hover effects */
+.job-card:hover .job-header h3 {
+    color: var(--secondary-color);
+    transition: color 0.3s ease;
+}
+
+.job-card:hover .job-skills {
+    background: white;
+    border-color: var(--primary-color);
+    transition: all 0.3s ease;
+}

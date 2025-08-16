@@ -1,0 +1,225 @@
+/* Top Skills Component Styles */
+
+/* Skills container */
+.skills-container {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* Header styling */
+.skills-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.skills-header h3 {
+    color: var(--primary-color);
+    font-size: var(--font-size-xl);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Tabs styling */
+.skills-tabs {
+    margin-bottom: var(--spacing-lg);
+}
+
+.skills-tabs .stTabs [data-baseweb="tab-list"] {
+    gap: var(--spacing-sm);
+}
+
+.skills-tabs .stTabs [data-baseweb="tab"] {
+    background-color: var(--light-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.skills-tabs .stTabs [data-baseweb="tab"]:hover {
+    background-color: #e9ecef;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.skills-tabs .stTabs [aria-selected="true"] {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+}
+
+/* Chart containers */
+.chart-container {
+    background: var(--light-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--border-color);
+}
+
+.chart-container:hover {
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.3s ease;
+}
+
+/* Detailed breakdown */
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: white;
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.breakdown-item:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid var(--primary-color);
+}
+
+.breakdown-label {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.breakdown-value {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: var(--font-size-lg);
+}
+
+/* Skills table */
+.skills-table {
+    margin-top: var(--spacing-lg);
+    background: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.skills-table .stDataFrame {
+    border: none;
+}
+
+.skills-table .stDataFrame table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.skills-table .stDataFrame th {
+    background-color: var(--primary-color);
+    color: white;
+    padding: var(--spacing-md);
+    font-weight: 600;
+    text-align: left;
+}
+
+.skills-table .stDataFrame td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.skills-table .stDataFrame tr:hover {
+    background-color: var(--light-color);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .skills-container {
+        padding: var(--spacing-md);
+    }
+    
+    .skills-header h3 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .breakdown-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+    
+    .chart-container {
+        padding: var(--spacing-sm);
+    }
+}
+
+/* Animation */
+.skills-container {
+    animation: fadeIn 0.6s ease-in;
+}
+
+.breakdown-item {
+    animation: slideInLeft 0.5s ease-out;
+}
+
+.breakdown-item:nth-child(1) { animation-delay: 0.1s; }
+.breakdown-item:nth-child(2) { animation-delay: 0.2s; }
+.breakdown-item:nth-child(3) { animation-delay: 0.3s; }
+
+.chart-container {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.chart-container:nth-child(1) { animation-delay: 0.4s; }
+.chart-container:nth-child(2) { animation-delay: 0.5s; }
+.chart-container:nth-child(3) { animation-delay: 0.6s; }
+
+/* Hover effects */
+.breakdown-item:hover .breakdown-value {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
+}
+
+/* Loading states */
+.skills-container.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.skills-container.loading .chart-container {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+/* Chart hover effects */
+.chart-container:hover {
+    transform: translateY(-2px);
+    transition: transform 0.3s ease;
+}
+
+/* Tab animations */
+.skills-tabs .stTabs [data-baseweb="tab"] {
+    position: relative;
+    overflow: hidden;
+}
+
+.skills-tabs .stTabs [data-baseweb="tab"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.skills-tabs .stTabs [data-baseweb="tab"]:hover::before {
+    left: 100%;
+}
