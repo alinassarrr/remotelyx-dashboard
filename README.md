@@ -1,161 +1,182 @@
-# Gamma Job Scraper
+# 🚀 AI-Powered Job Scraper API
 
-A production-ready web scraper for extracting job data from gamma.app using Selenium to handle JavaScript-rendered content.
+A modern, AI-powered job scraping API that uses **FREE local AI** (Ollama) to intelligently extract structured job data from any job posting website.
 
-## 🎯 Overview
+## ✨ Features
 
-This scraper receives a job URL from n8n, extracts comprehensive job data, applies enrichment functions, and sends structured JSON to your backend API.
+- 🤖 **FREE AI-powered extraction** using Ollama (Llama 3.2)
+- 📊 **Intelligent data extraction** - no hardcoded selectors needed
+- 🗄️ **MongoDB integration** for data storage
+- 🔗 **RESTful API** for easy integration with n8n workflows
+- 🛡️ **Error handling** and fallback mechanisms
+- ⚡ **Fast and reliable** with automatic deduplication
+
+## 🎯 What It Extracts
+
+- Job title and company
+- Location and employment type
+- Salary information
+- Seniority level
+- Technical skills (Python, React, AWS, etc.)
+- Soft skills (Communication, Leadership, etc.)
+- Comprehensive job description
+- Posting date and job link
+
+## 🏗️ Architecture
+
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│    n8n      │───▶│  API Server │───▶│   Ollama    │───▶│  MongoDB    │
+│ Workflow    │    │    (Flask)  │    │ (Local AI)  │    │ (Database)  │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+```
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Install & Start Ollama
+
+```bash
+# Windows
+winget install Ollama.Ollama
+ollama pull llama3.2
+```
+
+### 3. Install & Start MongoDB
+
+```bash
+# Windows
+winget install MongoDB.Server
+# MongoDB will start automatically
+```
+
+### 4. Start the API Server
+
+```bash
+python api_server_clean.py
+```
+
+The API will be available at `http://localhost:5000`
+
+## 📡 API Endpoints
+
+### POST /scrape
+
+Scrape a job from URL and save to database.
+
+**Request:**
+
+```json
+{
+  "job_url": "https://example.com/job-posting"
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "title": "Senior Python Developer",
+    "company": "Tech Corp",
+    "location": "Remote",
+    "employment_type": "Full-time",
+    "salary": "80000$-120000$",
+    "seniority": "Senior",
+    "tech_skills": ["Python", "Django", "AWS", "Docker"],
+    "soft_skills": ["Communication", "Leadership"],
+    "description": "Full job description...",
+    "date_posted": "2025-08-16",
+    "job_link": "https://example.com/job-posting"
+  },
+  "message": "Job saved successfully"
+}
+```
+
+### GET /health
+
+Check API and database status.
+
+### GET /jobs
+
+Get recent jobs from database.
+
+- Query params: `limit` (default: 10), `skip` (default: 0)
+
+## 🔧 Configuration
+
+Environment variables can be set in a `.env` file:
+
+```bash
+# API Configuration
+PORT=5000
+DEBUG=false
+
+# Database Configuration
+MONGODB_URI=mongodb://localhost:27017/
+DATABASE_NAME=job_scraper
+COLLECTION_NAME=jobs
+```
+
+## 🤝 n8n Integration
+
+### Workflow Setup:
+
+```
+HTTP Request → MongoDB → Google Sheets → NoOp
+```
+
+### HTTP Request Node:
+
+- **Method:** POST
+- **URL:** `http://localhost:5000/scrape`
+- **Body:** `{"job_url": "{{YOUR_JOB_URL}}"}`
 
 ## 📁 Project Structure
 
 ```
-remotelyx-dashboard/
-├── gamma_job_scraper.py    # Main scraper (Selenium-based)
-├── README.md               # This documentation
-└── scraped_job.json        # Output file (created when running)
-```
-
-## 🚀 Features
-
-- **✅ JavaScript Support**: Uses Selenium to handle dynamic content
-- **✅ Anti-Bot Bypass**: Optimized Chrome options to avoid detection
-- **✅ Comprehensive Extraction**: Extracts all required job fields
-- **✅ Smart Enrichment**: Applies AI-like processing for skills and seniority
-- **✅ API Ready**: Structured JSON output for backend integration
-- **✅ Error Handling**: Robust error handling and logging
-
-## 📊 Data Extracted
-
-| Field               | Description        | Example                                            |
-| ------------------- | ------------------ | -------------------------------------------------- |
-| **title**           | Job title          | "Tech Integration Specialist"                      |
-| **seniority**       | Classified level   | "Senior", "Mid", "Junior"                          |
-| **employment_type** | Job type           | "Full-time", "Part-time", "Contract"               |
-| **company**         | Company name       | "Gamma.app"                                        |
-| **soft_skills**     | Soft skills list   | ["Communication", "Leadership"]                    |
-| **tech_skills**     | Technical skills   | ["Python", "React", "AWS"]                         |
-| **description**     | Job description    | Full text (max 2000 chars)                         |
-| **salary**          | Parsed salary data | `{"min": 80000, "max": 120000, "currency": "USD"}` |
-| **date_posted**     | Posting date       | "2024-01-15"                                       |
-| **job_link**        | Original URL       | Full job URL                                       |
-
-## 🔧 Installation
-
-```bash
-pip install requests beautifulsoup4 selenium
-```
-
-## 🚀 Usage
-
-### Basic Usage
-
-```bash
-python gamma_job_scraper.py
-```
-
-### Integration with n8n
-
-```python
-# This is what n8n would call
-from gamma_job_scraper import GammaJobScraper
-
-scraper = GammaJobScraper()
-job_url = "https://gamma.app/docs/job-url"  # From n8n
-job_data = scraper.scrape_job(job_url)
-scraper.send_to_backend(job_data)
-```
-
-## 📋 Complete Flow
-
-1. **Receive URL**: Get job URL from n8n
-2. **Setup Browser**: Initialize Chrome driver with anti-detection options
-3. **Fetch Page**: Load page with Selenium (handles JavaScript)
-4. **Extract Data**: Use CSS selectors to extract raw fields
-5. **Apply Enrichment**:
-   - Classify seniority from title/description
-   - Extract tech and soft skills
-   - Parse salary information
-6. **Build JSON**: Create structured output
-7. **Send to API**: Post to backend endpoint
-
-## 🔍 Example Output
-
-```json
-{
-  "title": "Tech Integration Specialist",
-  "seniority": "Senior",
-  "employment_type": null,
-  "company": "Gamma.app",
-  "soft_skills": ["Innovation"],
-  "tech_skills": ["Go", "Git", "Api"],
-  "description": "Tech Integration Specialist...",
-  "salary": null,
-  "date_posted": null,
-  "job_link": "https://gamma.app/docs/Tech-Integration-Specialist-q60qcrqofvemyev?mode=doc"
-}
-```
-
-## ⚙️ Configuration
-
-### API Endpoint
-
-Edit the `API_URL` variable in the script:
-
-```python
-API_URL = "http://your-backend/api/jobs"
-```
-
-### Skills Lists
-
-Customize the skill dictionaries:
-
-```python
-TECH_SKILLS = ["python", "javascript", "react", ...]
-SOFT_SKILLS = ["communication", "leadership", ...]
+├── api_server_clean.py    # Main API server
+├── scraper_core.py        # Core scraping logic
+├── database.py            # MongoDB operations
+├── config.py              # Configuration settings
+├── requirements.txt       # Python dependencies
+└── README.md             # This file
 ```
 
 ## 🛡️ Error Handling
 
-The scraper includes comprehensive error handling:
+- **AI fallback**: If AI extraction fails, uses regex-based fallback
+- **Validation**: Input validation for URLs and data
+- **Logging**: Comprehensive logging for debugging
+- **Graceful degradation**: Continues working even if some components fail
 
-- **Browser Setup**: Graceful fallback if Chrome driver fails
-- **Page Loading**: Timeout and retry logic
-- **Data Extraction**: Fallback selectors for missing data
-- **API Communication**: Error logging for failed requests
+## 🔄 Data Flow
 
-## 🔄 Scalability Features
+1. **n8n** sends job URL to API
+2. **API** uses Selenium to fetch the webpage
+3. **AI (Ollama)** intelligently extracts structured data
+4. **MongoDB** stores the job data (with deduplication)
+5. **API** returns structured JSON to n8n
+6. **n8n** can then save to Google Sheets, send notifications, etc.
 
-- **Session Management**: Efficient browser handling
-- **Resource Cleanup**: Automatic driver cleanup
-- **Configurable Timeouts**: Adjustable wait times
-- **Modular Design**: Easy to extend and modify
+## 🎯 Why This Approach?
 
-## 🎯 Production Usage
+- **No API costs** - Uses free local AI (Ollama)
+- **No hardcoded selectors** - AI adapts to any website structure
+- **Future-proof** - Works with new job sites without code changes
+- **Privacy-focused** - All processing happens locally
+- **Scalable** - Can handle high volume with proper infrastructure
 
-1. **Update API Endpoint**: Change to your actual backend URL
-2. **Configure Skills**: Add domain-specific skills
-3. **Set Timeouts**: Adjust for your network conditions
-4. **Add Monitoring**: Track success rates and errors
-5. **Deploy**: Run in your production environment
+## 🤝 Contributing
 
-## ✅ Requirements Met
+Feel free to submit issues and enhancement requests!
 
-- ✅ **Environment Setup**: `pip install requests beautifulsoup4 selenium`
-- ✅ **Simple Scraper**: Fetches gamma.app job page
-- ✅ **Basic Extraction**: Extracts title + company with BeautifulSoup
-- ✅ **Expand Extraction**: Adds location, type, salary with regex
-- ✅ **Enrichment Functions**: All helper functions implemented
-- ✅ **API Integration**: `requests.post()` to backend
-- ✅ **Multiple Jobs**: Ready for job list processing
+## 📄 License
 
-## 🚀 Ready for Production
-
-The scraper is **production-ready** and successfully:
-
-- Extracts real data from gamma.app
-- Handles JavaScript-rendered content
-- Bypasses anti-bot protection
-- Provides structured JSON output
-- Integrates with backend APIs
-
-**Perfect for n8n workflow integration!** 🎉
+This project is open source and available under the MIT License.
