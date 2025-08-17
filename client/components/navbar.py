@@ -2,6 +2,18 @@
 import streamlit as st
 import os
 
+def _get_query_params_safe() -> dict:
+	try:
+		if hasattr(st, 'query_params'):
+			return dict(st.query_params)
+	except Exception:
+		pass
+	try:
+		return st.experimental_get_query_params()
+	except Exception:
+		return {}
+
+
 def render_navbar(header_data, theme):
 	"""
 	Renders the main header for the RemotelyX Dashboard
@@ -228,17 +240,13 @@ def render_navbar(header_data, theme):
 	st.markdown('<div style="height: var(--navbar-height);"></div>', unsafe_allow_html=True)
 
 	# Secondary navigation tabs (Overview, Job Listings, Reports)
-	# Determine current view from query params
-	current_view = None
-	try:
-		qp = st.query_params if hasattr(st, 'query_params') else {}
-		raw_view = qp.get('view') if qp is not None else None
-		if isinstance(raw_view, (list, tuple)):
-			current_view = raw_view[-1] if raw_view else None
-		else:
-			current_view = str(raw_view) if raw_view is not None else None
-	except Exception:
-		current_view = None
+	# Determine current view from query params (robust across Streamlit versions)
+	qp = _get_query_params_safe()
+	raw_view = qp.get('view') if qp is not None else None
+	if isinstance(raw_view, (list, tuple)):
+		current_view = raw_view[-1] if raw_view else None
+	else:
+		current_view = str(raw_view) if raw_view is not None else None
 	if current_view not in ('overview', 'job-listings', 'reports'):
 		current_view = 'overview'
 
@@ -250,11 +258,13 @@ def render_navbar(header_data, theme):
 		{"label": "Reports", "key": "reports"},
 	]
 	tabs_html = '<div class="nav-tabs">' + ''.join(
-		f'<a class="nav-tab{(" active" if current_view==item["key"] else "")}" href="?view={item["key"]}{base_theme}" target="_self">{item["label"]}</a>'
+		f'<a class="nav-tab{(" active" if current_view==item["key"] else "")}" ' \
+		f'aria-current="{("page" if current_view==item["key"] else "false")}" ' \
+		f'href="?view={item["key"]}{base_theme}" target="_self">{item["label"]}</a>'
 		for item in links
 	) + '</div>'
 	st.markdown(tabs_html, unsafe_allow_html=True)
-	# Intercept tab clicks to avoid full browser reload; update URL and request Streamlit rerun
+	# Intercept tab clicks to navigate via full reload (most reliable across Streamlit versions)
 	try:
 		import streamlit.components.v1 as components
 		components.html(
@@ -275,9 +285,10 @@ def render_navbar(header_data, theme):
 			          var theme = params.get('theme');
 			          if(view){ url.searchParams.set('view', view); }
 			          if(theme){ url.searchParams.set('theme', theme); }
-			          history.replaceState(null, '', url.toString());
-			          window.parent.postMessage({ type: 'streamlit:rerun' }, '*');
-			        } catch(e) { console.warn('tab nav handler error', e); }
+			          window.location.href = url.toString();
+			        } catch(e) {
+			          try { window.location.href = ev.currentTarget.href; } catch(_) {}
+			        }
 			      }, { passive: false });
 			    });
 			  });

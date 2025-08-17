@@ -103,8 +103,22 @@ def apply_theme(theme: str) -> None:
     st.markdown(theme_css, unsafe_allow_html=True)
 
 
+def _get_query_params() -> dict:
+    """Return query params with compatibility across Streamlit versions."""
+    try:
+        if hasattr(st, "query_params"):
+            return dict(st.query_params)
+    except Exception:
+        pass
+    try:
+        return st.experimental_get_query_params()
+    except Exception:
+        return {}
+
+
 def get_current_theme() -> str:
-    raw = st.query_params.get("theme") if hasattr(st, "query_params") else None
+    qp = _get_query_params()
+    raw = qp.get("theme")
     value = None
     if raw is not None:
         # Query param may be a list or a string
@@ -132,7 +146,7 @@ def main():
     render_navbar(header_data, current_theme)
     
     # Determine current view from query param set by secondary nav
-    qp = st.query_params if hasattr(st, 'query_params') else {}
+    qp = _get_query_params()
     raw_view = qp.get('view') if qp is not None else None
     if isinstance(raw_view, (list, tuple)):
         current_view_key = raw_view[-1] if raw_view else None
@@ -141,9 +155,6 @@ def main():
     if current_view_key not in ("overview", "job-listings", "reports"):
         current_view_key = "overview"
 
-    # CSS to control which center view is visible
-    st.markdown('<style>.app-view{display:none;} .app-view.active{display:block;}</style>', unsafe_allow_html=True)
-    
     # Layout
     col1, col2, col3 = st.columns([1, 3, 1])
     
@@ -152,21 +163,16 @@ def main():
     
     with col2:
         st.markdown("<br>", unsafe_allow_html=True)
-        # Overview view
-        st.markdown(f'<div id="view-overview" class="app-view{(" active" if current_view_key=="overview" else "")}">', unsafe_allow_html=True)
-        render_stats_cards()
-        render_top_skills()
-        render_job_listings(key_prefix="overview_")
-        st.markdown('</div>', unsafe_allow_html=True)
-        # Job listings view
-        st.markdown(f'<div id="view-job-listings" class="app-view{(" active" if current_view_key=="job-listings" else "")}">', unsafe_allow_html=True)
-        render_job_listings(key_prefix="listings_")
-        st.markdown('</div>', unsafe_allow_html=True)
-        # Reports view (placeholder)
-        st.markdown(f'<div id="view-reports" class="app-view{(" active" if current_view_key=="reports" else "")}">', unsafe_allow_html=True)
-        st.subheader("Reports")
-        st.info("Reports view coming soon")
-        st.markdown('</div>', unsafe_allow_html=True)
+        # Render only the active center view to avoid duplicate content
+        if current_view_key == "overview":
+            render_stats_cards()
+            render_top_skills()
+            render_job_listings(key_prefix="overview_")
+        elif current_view_key == "job-listings":
+            render_job_listings(key_prefix="listings_")
+        elif current_view_key == "reports":
+            st.subheader("Reports")
+            st.info("Reports view coming soon")
     
     with col3:
         render_right_panel()
