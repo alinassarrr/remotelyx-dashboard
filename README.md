@@ -4,7 +4,7 @@ A comprehensive job market analytics platform with secure authentication and bea
 
 ## 🚀 Quick Start
 
-```bash
+````bash
 # Clone the repository
 git clone <your-repo-url>
 # RemotelyX Dashboard
@@ -46,9 +46,10 @@ A comprehensive job application tracking dashboard for remote job seekers.
    ```bash
    git clone <repository-url>
    cd remotelyx-dashboard
-   ```
+````
 
 2. **Start services with Docker Compose**
+
    ```bash
    docker-compose up -d
    ```
@@ -64,28 +65,33 @@ A comprehensive job application tracking dashboard for remote job seekers.
 #### Backend Setup
 
 1. **Navigate to server directory**
+
    ```bash
    cd server
    ```
 
 2. **Create virtual environment**
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Set up environment variables**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
 5. **Run database setup**
+
    ```bash
    chmod +x db.sh
    ./db.sh
@@ -100,11 +106,13 @@ A comprehensive job application tracking dashboard for remote job seekers.
 #### Frontend Setup
 
 1. **Navigate to client directory**
+
    ```bash
    cd client
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -117,6 +125,7 @@ A comprehensive job application tracking dashboard for remote job seekers.
 ## API Documentation
 
 Once the backend is running, you can access:
+
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
@@ -143,6 +152,7 @@ remotelyx-dashboard/
 ## Development Commands
 
 ### Backend
+
 ```bash
 # Run development server
 ./run_dev.sh
@@ -158,6 +168,7 @@ python manage.py seed
 ```
 
 ### Frontend
+
 ```bash
 # Start development server
 npm run dev
@@ -172,6 +183,7 @@ npm run test
 ## API Testing
 
 Use the included Postman collection:
+
 ```bash
 # Import RemotelyX_API.postman_collection.json into Postman
 # Or run tests via command line:
@@ -189,6 +201,7 @@ Use the included Postman collection:
 ## Environment Variables
 
 ### Backend (.env)
+
 ```env
 # MongoDB
 MONGODB_URL=mongodb://localhost:27017
@@ -212,6 +225,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Support
 
 If you encounter any issues or have questions:
+
 1. Check the [Issues](../../issues) page
 2. Create a new issue with detailed information
 3. Include logs and error messages when possible
@@ -221,36 +235,43 @@ If you encounter any issues or have questions:
 **Happy job hunting! 🚀**
 
 # Navigate to client directory
+
 cd client
 
 # Setup virtual environment
+
 python3 -m venv venv
 source venv/bin/activate
 
 # Install dependencies
+
 pip install -r requirements.txt
 
 # Start the application
+
 streamlit run app.py
+
 ```
 
 ## 📁 Project Structure
 
 ```
+
 remotelyx-dashboard/
-├── client/                 # Frontend Streamlit Application
-│   ├── app.py             # Main application (login + dashboard)
-│   ├── requirements.txt   # Python dependencies
-│   ├── config.py         # Configuration settings
-│   ├── test_dashboard.py # Test suite
-│   ├── start_app.sh      # Quick start script (Linux/Mac)
-│   ├── run_dashboard.bat # Quick start script (Windows)
-│   ├── html/             # Reference HTML designs
-│   └── .streamlit/       # Streamlit configuration
-├── server/                # Backend (if needed)
-├── .gitignore            # Git ignore rules
-└── README.md             # This file
-```
+├── client/ # Frontend Streamlit Application
+│ ├── app.py # Main application (login + dashboard)
+│ ├── requirements.txt # Python dependencies
+│ ├── config.py # Configuration settings
+│ ├── test_dashboard.py # Test suite
+│ ├── start_app.sh # Quick start script (Linux/Mac)
+│ ├── run_dashboard.bat # Quick start script (Windows)
+│ ├── html/ # Reference HTML designs
+│ └── .streamlit/ # Streamlit configuration
+├── server/ # Backend (if needed)
+├── .gitignore # Git ignore rules
+└── README.md # This file
+
+````
 
 ## 🔐 Login System
 
@@ -280,7 +301,7 @@ The application includes a secure authentication system:
 cd client
 source venv/bin/activate
 python test_dashboard.py
-```
+````
 
 ### Adding New Features
 
