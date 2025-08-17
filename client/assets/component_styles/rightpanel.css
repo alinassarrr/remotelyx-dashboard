@@ -1,0 +1,196 @@
+.right-panel { background: var(--bg-card); border: 1px solid var(--border-color); }
+/* Right Panel Component Styles */
+
+/* Container styling */
+.right-panel {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    height: fit-content;
+    position: sticky;
+    top: 10px;
+}
+
+/* Header styling */
+.right-panel h1, .right-panel h2, .right-panel h3 {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.right-panel h1 {
+    font-size: var(--font-size-xl);
+    text-align: center;
+}
+
+.right-panel h2 {
+    font-size: var(--font-size-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.right-panel h3 {
+    font-size: var(--font-size-base);
+    color: var(--dark-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Action buttons */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.action-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.action-btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.action-btn-primary:hover {
+    background-color: #1565c0;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.action-btn-secondary {
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    border: 1px solid var(--border-color);
+}
+
+.action-btn-secondary:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Recent activity */
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-time {
+    font-size: var(--font-size-base);
+    color: var(--info-color);
+    font-weight: 500;
+    min-width: 80px;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-action {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.activity-details {
+    color: var(--secondary-color);
+    font-style: italic;
+}
+
+/* System status */
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) 0;
+}
+
+.status-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.status-success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.status-info {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.status-warning {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+/* Divider styling */
+.right-panel hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+    margin: var(--spacing-lg) 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .right-panel {
+        position: static;
+        margin-top: var(--spacing-md);
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .right-panel h1 {
+        font-size: var(--font-size-lg);
+    }
+    
+    .right-panel h2 {
+        font-size: var(--font-size-base);
+    }
+}
+
+/* Animation */
+.right-panel {
+    animation: slideInRight 0.5s ease-out;
+}
+
+.activity-item {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.activity-item:nth-child(1) { animation-delay: 0.1s; }
+.activity-item:nth-child(2) { animation-delay: 0.2s; }
+.activity-item:nth-child(3) { animation-delay: 0.3s; }
+.activity-item:nth-child(4) { animation-delay: 0.4s; }
+
+.status-item {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.status-item:nth-child(1) { animation-delay: 0.5s; }
+.status-item:nth-child(2) { animation-delay: 0.6s; }
+.status-item:nth-child(3) { animation-delay: 0.7s; }

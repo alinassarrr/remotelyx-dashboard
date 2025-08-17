@@ -1,0 +1,268 @@
+.sidebar-title { background: transparent !important; box-shadow: none !important; border: none !important; }
+/* Sidebar - Same structure as index */
+.sidebar {
+    width: 280px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    padding: 25px 20px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: var(--input-bg);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--brand-purple);
+    border-radius: 3px;
+}
+
+.sidebar-section {
+    flex: 1;
+}
+
+.sidebar-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 18px;
+}
+
+.filter-group {
+    margin-bottom: 25px;
+}
+
+.filter-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    display: block;
+    font-weight: 500;
+}
+
+.filter-input, .filter-select {
+    width: 100%;
+    height: 38px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 0 12px;
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* Unify select with input background */
+.filter-select {
+    background: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-primary);
+}
+
+.filter-select:focus {
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 3px rgba(113, 116, 255, 0.1);
+    background: var(--input-bg);
+}
+
+.filter-select option {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    padding: 8px 12px;
+}
+
+.filter-select option:hover {
+    background: var(--brand-purple);
+    color: white;
+}
+
+.filter-input::placeholder {
+    color: var(--text-muted);
+}
+
+.filter-input:focus, .filter-select:focus {
+    outline: none;
+    border-color: var(--brand-purple);
+    box-shadow: 0 0 0 3px rgba(113, 116, 255, 0.1);
+}
+
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.chip {
+    padding: 6px 14px;
+    background: var(--chip-bg);
+    border: 1px solid var(--chip-border);
+    border-radius: 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+}
+
+.chip:hover {
+    border-color: var(--brand-purple);
+    transform: scale(1.05);
+}
+
+.chip.active {
+    background: var(--brand-purple);
+    border-color: var(--brand-purple);
+    color: white;
+}
+
+/* Filter Actions */
+.filter-actions {
+    padding: 20px 0;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 12px;
+    margin-top: auto;
+}
+
+.btn-apply {
+    flex: 1;
+    padding: 12px;
+    background: var(--brand-purple);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-apply:hover {
+    background: var(--brand-purple-dark);
+    transform: translateY(-1px);
+}
+
+.btn-clear {
+    padding: 12px 20px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-clear:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    background: var(--bg-primary);
+    transition: all 0.3s ease;
+}
+
+/* ============================= */
+/* Streamlit native sidebar match */
+/* ============================= */
+
+/* Sidebar container visuals */
+section[data-testid="stSidebar"] {
+    background: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+/* Inner wrapper padding and column layout */
+section[data-testid="stSidebar"] > div {
+    padding: 25px 20px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Title mimic */
+section[data-testid="stSidebar"] .sidebar-title,
+section[data-testid="stSidebar"] h2:has(> span),
+section[data-testid="stSidebar"] h3:has(> span) {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: var(--text-muted) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 18px !important;
+}
+
+/* Group spacing */
+section[data-testid="stSidebar"] .stSelectbox,
+section[data-testid="stSidebar"] .stMultiSelect,
+section[data-testid="stSidebar"] .stTextInput,
+section[data-testid="stSidebar"] .stDateInput {
+    margin-bottom: 25px !important;
+}
+
+/* Inputs/select visuals */
+section[data-testid="stSidebar"] [data-testid="stSelectbox"] > div,
+section[data-testid="stSidebar"] [data-testid="stMultiSelect"] > div,
+section[data-testid="stSidebar"] [data-testid="stTextInput"] > div,
+section[data-testid="stSidebar"] [data-testid="stDateInput"] > div {
+    background: var(--input-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: 8px !important;
+}
+
+/* Text input field */
+section[data-testid="stSidebar"] input[type="text"] {
+    color: var(--text-primary) !important;
+}
+
+/* Focus state */
+section[data-testid="stSidebar"] [data-testid="stSelectbox"] > div:focus-within,
+section[data-testid="stSidebar"] [data-testid="stMultiSelect"] > div:focus-within,
+section[data-testid="stSidebar"] [data-testid="stTextInput"] > div:focus-within,
+section[data-testid="stSidebar"] [data-testid="stDateInput"] > div:focus-within {
+    border-color: var(--brand-purple) !important;
+    box-shadow: 0 0 0 3px rgba(113, 116, 255, 0.1) !important;
+}
+
+/* Buttons in sidebar to match */
+section[data-testid="stSidebar"] .stButton > button {
+    width: 100% !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+/* First button as primary */
+section[data-testid="stSidebar"] .stButton > button:first-child {
+    background: var(--brand-purple) !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+/* Second button as outline */
+section[data-testid="stSidebar"] .stButton + .stButton > button {
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Scrollbar for sidebar */
+section[data-testid="stSidebar"]::-webkit-scrollbar { width: 6px; }
+section[data-testid="stSidebar"]::-webkit-scrollbar-track { background: var(--input-bg); }
+section[data-testid="stSidebar"]::-webkit-scrollbar-thumb { background: var(--brand-purple); border-radius: 3px; }
+
