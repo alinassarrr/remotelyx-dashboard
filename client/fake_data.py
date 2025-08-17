@@ -72,8 +72,32 @@ top_skills = {
     'skill': ['Python', 'JavaScript', 'React', 'AWS', 'Docker', 'Kubernetes', 'SQL', 'Git'],
     'demand_score': [95, 88, 82, 78, 75, 72, 68, 65],
     'seniority': ['Senior', 'Mid-level', 'Senior', 'Senior', 'Mid-level', 'Senior', 'Mid-level', 'Mid-level'],
-    'job_count': [156, 142, 128, 98, 87, 76, 134, 89],
-    'growth_rate': [12.5, 8.3, 15.2, 22.1, 18.7, 25.4, 9.8, 6.2]
+    'job_count': [156, 142, 128, 98, 87, 76, 134, 89]
+}
+
+# Top skills: right-side seniority distribution and salary ranges
+seniority_distribution = {
+	"senior": 45,  # percent
+	"mid": 35,
+	"junior": 20,
+	"total_jobs": 156,
+}
+
+salary_ranges_by_level = {
+	"Senior": "$85-120k",
+	"Mid": "$60-85k",
+	"Junior": "$40-60k",
+}
+
+# Mapping of roles to relevant skills (subset of top_skills) for filtering the list
+skills_by_role = {
+	"Developer": ["JavaScript", "React", "Docker", "Kubernetes", "Git", "SQL", "Python", "AWS"],
+	"Designer": [],
+	"DevOps": ["Docker", "Kubernetes", "AWS", "Git"],
+	"Data": ["Python", "SQL", "AWS"],
+	"Product": [],
+	"Marketing": [],
+	"Sales": [],
 }
 
 # Job listings data
