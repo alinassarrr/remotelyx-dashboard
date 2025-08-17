@@ -123,7 +123,8 @@ section[data-testid="stSidebar"] .filter-actions .stButton:last-of-type > button
 }
 
 /* Streamlit sidebar alignment */
-section[data-testid="stSidebar"] { background: var(--bg-secondary) !important; border-right: 1px solid var(--border-color) !important; }
+section[data-testid="stSidebar"] { background: var(--bg-secondary) !important; border-right: 1px solid var(--border-color) !important; width: 280px !important; min-width: 280px !important; }
+section[data-testid="stSidebar"] > div { width: 100% !important; }
 section[data-testid="stSidebar"] > div { padding: 16px !important; display: flex; flex-direction: column; gap: 0; }
 section[data-testid="stSidebar"] .sidebar-title,
 section[data-testid="stSidebar"] h2:has(> span),

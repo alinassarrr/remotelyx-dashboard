@@ -1,6 +1,8 @@
 # components/navbar.py
 import streamlit as st
 import os
+from urllib.parse import quote
+
 
 def _get_query_params_safe() -> dict:
 	try:
@@ -82,13 +84,13 @@ def render_navbar(header_data, theme):
 
 	.logo-text {{ font-size: 120px; font-weight: 700; white-space: nowrap; }}
 	.logo-mark {{ display: flex; align-items: center; overflow: visible; transform: scale(1.0); transform-origin: left center; }}
-	.logo-mark svg {{ height: 130px; width: auto; display: block; }}
+	.logo-mark img {{ height: 130px; width: auto; display: block; }}
 
 	/* Last updated badge */
 	.last-updated {{
-		font-size: 12px;
+		font-size: 14px;
 		color: var(--text-muted);
-		padding: 6px 12px;
+		padding: 14px 13px;
 		background: var(--input-bg);
 		border-radius: 20px;
 	}}
@@ -126,7 +128,7 @@ def render_navbar(header_data, theme):
 		font-size: 18px; text-decoration: none;
 	}}
 	.theme-toggle.mini {{
-		width: 28px; height: 28px; font-size: 14px;
+		width: 38px; height: 38px; font-size: 18px;
 		margin-right: 0;
 	}}
 
@@ -204,29 +206,27 @@ def render_navbar(header_data, theme):
 	icon = "🌙" if is_light else "☀️"
 	label = "Switch to dark" if is_light else "Switch to light"
 
-	# Load appropriate inline SVG logo (white for dark theme, dark variant for light theme)
-	logo_svg = None
+	# Choose a much smaller logo height for light mode
+	logo_height_px = 28 if is_light else 130
+
+	# Load appropriate SVG logo and embed as data URI to avoid inline <style> rendering issues
+	logo_img_html = None
 	try:
 		assets_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'html', 'Assets'))
 		logo_file = 'logo dark.svg' if is_light else 'Remotley-x-white-logo.svg'
 		logo_path = os.path.join(assets_dir, logo_file)
 		with open(logo_path, 'r', encoding='utf-8') as f:
-			logo_svg = f.read()
-		# Inject inline style to ensure the SVG scales larger regardless of internal attributes
-		try:
-			if '<svg' in logo_svg:
-				# Set a fixed height for the SVG wordmark
-				logo_svg = logo_svg.replace('<svg ', '<svg style="height: 130px; width: auto; display: block;" ', 1)
-		except Exception:
-			pass
+			svg_text = f.read()
+		data_uri = f"data:image/svg+xml;utf8,{quote(svg_text)}"
+		logo_img_html = f'<img src="{data_uri}" style="height: {logo_height_px}px; width: auto; display: block;" alt="RemotelyX logo" />'
 	except Exception:
-		logo_svg = None
+		logo_img_html = None
 
 	navbar_html = f"""
 	<div class=\"navbar-container\">
 		<div class=\"navbar-flex\">
 			<div class=\"navbar-left\">
-				{(f'<div class="logo-mark">{logo_svg}</div>' if logo_svg else f'<span class="logo-text">{header_data["logo"]}<span style="color: var(--brand-blue); margin-left: 2px;">X</span></span>')}
+				{(f'<div class="logo-mark">{logo_img_html}</div>' if logo_img_html else f'<span class="logo-text">{header_data["logo"]}<span style="color: var(--brand-blue); margin-left: 2px;">X</span></span>')}
 			</div>
 			<div class=\"navbar-right\">
 				<div class=\"last-updated\">Last updated: {header_data['last_updated']}</div>
@@ -264,8 +264,8 @@ def render_navbar(header_data, theme):
 		{"label": "Reports", "key": "reports"},
 	]
 	tabs_html = '<div class="nav-tabs">' + ''.join(
-		f'<a class="nav-tab{(" active" if current_view==item["key"] else "")}" ' \
-		f'aria-current="{("page" if current_view==item["key"] else "false")}" ' \
+		f'<a class="nav-tab{(" active" if current_view==item["key"] else "")}" '
+		f'aria-current="{("page" if current_view==item["key"] else "false")}" '
 		f'href="?view={item["key"]}{base_theme}" target="_self">{item["label"]}</a>'
 		for item in links
 	) + '</div>'

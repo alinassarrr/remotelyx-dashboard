@@ -97,7 +97,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 8px 16px;
+    padding: 12px 45px;
     background: var(--input-bg);
     border: 1px solid var(--input-border);
     border-radius: 25px;
@@ -111,8 +111,8 @@
 }
 
 .avatar {
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
     background: linear-gradient(135deg, var(--brand-purple), var(--brand-purple-dark));
     border-radius: 50%;
     display: flex;
@@ -125,7 +125,7 @@
 
 .user-name {
     color: var(--text-primary);
-    font-size: 14px;
+    font-size: 17px;
     font-weight: 500;
 }
 

@@ -161,6 +161,11 @@ body.light-mode .job-status.new {
   color: #22c55e;
   border-color: #22c55e;
 }
+.stApp[data-theme="light"] .job-status.new {
+  background: rgba(102, 254, 144, 0.1);
+  color: #22c55e;
+  border-color: #22c55e;
+}
 .job-status.analyzed {
   background: rgba(113, 116, 255, 0.15);
   color: var(--brand-purple);
@@ -218,6 +223,15 @@ body.light-mode .job-meta .time-icon {
 body.light-mode .job-meta .seniority-icon {
   content: url("Assets/senior dark.svg");
 }
+.stApp[data-theme="light"] .job-meta .location-icon {
+  content: url("Assets/Location dark.svg");
+}
+.stApp[data-theme="light"] .job-meta .time-icon {
+  content: url("Assets/time dark.svg");
+}
+.stApp[data-theme="light"] .job-meta .seniority-icon {
+  content: url("Assets/senior dark.svg");
+}
 .job-skills {
   display: flex;
   flex-wrap: wrap;
@@ -251,6 +265,9 @@ body.light-mode .job-meta .seniority-icon {
   color: var(--brand-green);
 }
 body.light-mode .salary-range {
+  color: #22c55e;
+}
+.stApp[data-theme="light"] .salary-range {
   color: #22c55e;
 }
 .job-actions {

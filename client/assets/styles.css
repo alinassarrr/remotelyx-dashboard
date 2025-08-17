@@ -272,6 +272,19 @@ body.theme-dark {
     color: var(--text-primary) !important;
 }
 
+/* Keep sidebar always open and visible */
+.stApp [data-testid="stSidebar"] {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+}
+/* Hide the sidebar collapse control */
+.stApp [data-testid="collapsedControl"],
+.stApp [data-testid="stSidebarCollapseButton"] {
+    display: none !important;
+}
+
 /* Theme toggle visibility */
 div[data-testid="stVerticalBlock"] > div:first-child {
     background-color: var(--bg-primary) !important;
