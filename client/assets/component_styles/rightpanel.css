@@ -9,7 +9,7 @@
     border: 1px solid var(--border-color);
     height: fit-content;
     position: sticky;
-    top: 100px;
+    top: 10px;
 }
 
 /* Header styling */

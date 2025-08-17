@@ -44,15 +44,92 @@ def load_css():
         except FileNotFoundError:
             st.warning(f"CSS file not found: {css_file}")
 
+
+def apply_theme(theme: str) -> None:
+    """Inject CSS variables for the selected theme (dark/light)."""
+    theme = "light" if theme == "light" else "dark"
+    if theme == "light":
+        theme_css = """
+        <style>
+        :root {
+            --bg-primary: #f5f7fa;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1c2127;
+            --text-secondary: rgba(28, 33, 39, 0.7);
+            --text-muted: rgba(28, 33, 39, 0.5);
+            --border-color: #e2e8f0;
+            --border-hover: #cbd5e0;
+            --input-bg: #f7fafc;
+            --input-border: #e2e8f0;
+            --chip-bg: #f7fafc;
+            --chip-border: #e2e8f0;
+            --skill-bar-bg: #f0f4f8;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --brand-purple: #7174ff;
+            --brand-blue: #66b9ff;
+            --brand-green: #66fe90;
+            --brand-red: #ff2e00;
+            --brand-purple-dark: #47499e;
+        }
+        </style>
+        """
+    else:
+        theme_css = """
+        <style>
+        :root {
+            --bg-primary: #111417;
+            --bg-secondary: #1c2127;
+            --bg-card: #1c2127;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --border-color: rgba(102, 254, 144, 0.2);
+            --border-hover: rgba(102, 254, 144, 0.4);
+            --input-bg: rgba(113, 116, 255, 0.1);
+            --input-border: rgba(113, 116, 255, 0.3);
+            --chip-bg: rgba(113, 116, 255, 0.1);
+            --chip-border: rgba(113, 116, 255, 0.3);
+            --skill-bar-bg: rgba(113, 116, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --brand-purple: #7174ff;
+            --brand-blue: #66b9ff;
+            --brand-green: #66fe90;
+            --brand-red: #ff2e00;
+            --brand-purple-dark: #47499e;
+        }
+        </style>
+        """
+    st.markdown(theme_css, unsafe_allow_html=True)
+
+
+def get_current_theme() -> str:
+    raw = st.query_params.get("theme") if hasattr(st, "query_params") else None
+    value = None
+    if raw is not None:
+        # Query param may be a list or a string
+        if isinstance(raw, (list, tuple)):
+            value = raw[-1] if raw else None
+        else:
+            value = str(raw)
+    if value in ("light", "dark"):
+        st.session_state["theme"] = value
+    theme = st.session_state.get("theme", "dark")
+    if theme not in ("light", "dark"):
+        theme = "dark"
+    return theme
+
+
 def main():
-    # Load CSS
+    # Select and persist theme from query params robustly
+    current_theme = get_current_theme()
+
+    # Load CSS and apply theme overrides
     load_css()
-    
-    # Get current theme class (default to light theme)
-    theme_class = "theme-light"
-    
-    # Render navbar
-    render_navbar(header_data, theme_class)
+    apply_theme(current_theme)
+
+    # Render navbar (pass current theme)
+    render_navbar(header_data, current_theme)
     
     # Layout
     col1, col2, col3 = st.columns([1, 3, 1])

@@ -3,13 +3,47 @@
 # Header data for navbar
 header_data = {
     "logo": "Remotely",
+    "search_placeholder": "🔍 Search jobs, companies, skills...",
     "user": {
         "name": "Racile K.",
         "avatar": "R",
         "notifications": 12
     },
     "theme": "dark",  # or "light"
-    "search_placeholder": "🔍 Search jobs, companies, skills..."
+}
+
+# Sidebar UI data for custom HTML sidebar
+sidebar_ui = {
+    "date_ranges": [
+        {"value": "1-day", "label": "1 day"},
+        {"value": "7-days", "label": "1 week", "selected": True},
+        {"value": "1-month", "label": "1 month"},
+        {"value": "custom", "label": "Custom"},
+        {"value": "3-months", "label": "3 months"},
+        {"value": "6-months", "label": "6 months"},
+        {"value": "1-year", "label": "1 year"},
+    ],
+    "role_types": [
+        "All Roles", "Developer", "Designer", "Product Manager", "DevOps", "Data Scientist"
+    ],
+    "statuses": [
+        {"label": "New", "count": 12, "active": True},
+        {"label": "Analyzed", "count": 45, "active": False},
+        {"label": "Matched", "count": 88, "active": False},
+    ],
+    "seniority": [
+        {"label": "Junior", "active": False},
+        {"label": "Mid", "active": True},
+        {"label": "Senior", "active": True},
+    ],
+    "skills_suggestions": ["React", "Node.js", "Python", "AWS"],
+    "companies": [
+        "All Companies", "TechCorp Inc.", "StartupXYZ", "Enterprise Solutions", "Analytics Pro", "Creative Studios"
+    ],
+    "companies_placeholder": "Search company...",
+    "salary_ranges": [
+        "All Ranges", "$40k - $60k", "$60k - $80k", "$80k - $100k", "$100k+"
+    ],
 }
 
 # Sidebar filters data
