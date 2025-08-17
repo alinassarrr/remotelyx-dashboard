@@ -4,6 +4,7 @@
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+  background-color: var(--bg-primary);
   box-sizing: border-box;
 }
 
@@ -23,7 +24,7 @@
   background: transparent;
   border: none;
   border-radius: 6px;
-  color: var(--text-secondary);
+  color: var( --border-hover);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -76,7 +77,7 @@
   background: var(--input-bg);
   border: 1px solid var(--input-border);
   border-radius: 10px;
-  margin-bottom: 8px;
+  margin-bottom:19px;
   transition: all 0.3s ease;
 }
 
@@ -105,7 +106,7 @@
   border-left: 3px solid var(--brand-purple);
   background: var(--input-bg);
   border-radius: 0 8px 8px 0;
-  margin-bottom: 12px;
+  margin-bottom: 19px;
   font-size: 13px;
   color: var(--text-secondary);
   transition: all 0.3s ease;
@@ -143,4 +144,16 @@
 .right-panel .trending-item,
 .right-panel .activity-item {
   word-break: break-word;
+}
+
+/* Hover state for tabs: turn green when hovering non-selected tabs */
+.right-panel .stTabs [data-baseweb="tab"]:not([aria-selected="true"]):hover {
+  background: var(--brand-green) !important;
+  color: #000 !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Offset a specific Emotion container if present */
+.st-emotion-cache-13gev4o {
+  margin-top: -130px !important;
 }

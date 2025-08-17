@@ -1,25 +1,12 @@
 import streamlit as st
 import pandas as pd
-
-
-def render_job_listings():
-	"""Minimal placeholder job listings (table)."""
-	st.subheader("💼 Job Listings")
-	df = pd.DataFrame(
-		[
-			{"id": "J001", "title": "Senior Python Developer", "company": "TechCorp", "status": "Active"},
-			{"id": "J002", "title": "Frontend Engineer", "company": "StartupXYZ", "status": "Active"},
-		]
-	)
-	st.dataframe(df, use_container_width=True, hide_index=True)
-
-import streamlit as st
-import pandas as pd
 from datetime import datetime, timedelta
 
-def render_job_listings():
+
+def render_job_listings(key_prefix: str = ""):
 	"""
 	Renders the job listings in both table and card formats
+	Multiple instances can be rendered by providing a unique key_prefix
 	"""
 	st.subheader("💼 Job Listings")
 	
@@ -81,11 +68,12 @@ def render_job_listings():
 	
 	df = pd.DataFrame(jobs_data)
 	
-	# View toggle
+	# View toggle with unique key
 	view_mode = st.radio(
 		"Select View:",
 		["📊 Table View", "🎴 Card View"],
-		horizontal=True
+		horizontal=True,
+		key=f"{key_prefix}job_listings_view_mode",
 	)
 	
 	# Apply sidebar filters if present
