@@ -209,6 +209,36 @@ body.theme-dark {
     border: 1px solid var(--border-color) !important;
 }
 
+/* Global dropdown (BaseWeb) menus across the app */
+[data-baseweb="menu"],
+[role="listbox"] {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    max-height: 280px !important;
+    width: 100% !important;
+    overflow: auto !important;
+}
+[data-baseweb="menu"] :hover {
+    background: var(--bg-secondary) !important;
+}
+[data-baseweb="menu"] > div {
+    background: var(--bg-secondary) !important;
+}
+[role="option"] {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border: none !important;
+}
+[role="option"]:hover {
+    background: var(--input-bg) !important;
+    color: var(--bg-card) !important;
+    border: none !important;
+}
+[role="option"][aria-selected="true"] {
+    background: var(--chip-bg) !important;
+    border: none !important;
+}
+
 .navbar {
     background: linear-gradient(135deg, var(--primary-color) 0%, #1565c0 100%) !important;
 }
@@ -245,5 +275,77 @@ body.theme-dark {
 /* Theme toggle visibility */
 div[data-testid="stVerticalBlock"] > div:first-child {
     background-color: var(--bg-primary) !important;
+}
+
+/* Remove forced link color within specific Streamlit container */
+.st-emotion-cache-r44huj a,
+.st-emotion-cache-r44huj a:hover,
+.st-emotion-cache-r44huj a:focus,
+.st-emotion-cache-r44huj a:visited {
+    color: inherit !important;
+    text-decoration: none !important;
+  
+}
+
+/* Clear background for Streamlit container class */
+.st-bb {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Ensure text color follows theme for specific Streamlit class */
+.st-b6 {
+    color: var(--text-primary) !important;
+}
+
+/* Fix BaseWeb focus ring edge colors to match theme hover border */
+.st-f5 { border-bottom-color: var(--border-hover) !important; }
+.st-f4 { border-top-color: var(--border-hover) !important; }
+.st-f3 { border-right-color: var(--border-hover) !important; }
+.st-f2 { border-left-color: var(--border-hover) !important; }
+
+/* Remove red edge borders by using theme hover color */
+.st-fh { border-bottom-color: var(--border-hover) !important; }
+.st-fg { border-top-color: var(--border-hover) !important; }
+.st-ff { border-right-color: var(--border-hover) !important; }
+.st-fe { border-left-color: var(--border-hover) !important; }
+
+/* Dark theme: make input/textarea placeholders white */
+.stApp[data-theme="dark"] input::placeholder,
+.stApp[data-theme="dark"] textarea::placeholder {
+	color: var(--text-primary) !important;
+	opacity: 1 !important;
+}
+
+/* Ensure placeholders use theme primary color across the app */
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-primary) !important;
+    opacity: 1 !important;
+}
+
+/* Hide specific Streamlit container */
+.st-emotion-cache-14vh5up {
+    display: none !important;
+}
+
+/* Hide another Streamlit container as requested */
+.st-emotion-cache-1ffuo7c {
+    display: none !important;
+}
+
+/* Ensure h3 text uses theme primary color */
+.st-emotion-cache-r44huj h3 {
+    color: var(--text-primary) !important;
+}
+
+/* Adjust container width as requested */
+.st-emotion-cache-1vo6xi6 {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100% !important;
+    min-width: 1rem !important;
+    position: relative !important;
+    overflow: visible !important;
 }
 

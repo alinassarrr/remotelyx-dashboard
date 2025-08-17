@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import timedelta
 from typing import List, Dict, Tuple
+from urllib.parse import urlencode
 import textwrap
 
 from fake_data import job_listings as FAKE_JOBS
@@ -98,73 +99,116 @@ def render_job_listings(key_prefix: str = ""):
 			"""
 		).format(count=len(df)).strip()
 		st.markdown(header_html, unsafe_allow_html=True)
+	# Read search from query params for HTML input
+	def _get_qp_value(name: str) -> str:
+		try:
+			val = st.query_params.get(name)
+			if isinstance(val, list):
+				return str(val[0]) if val else ""
+			return str(val) if val is not None else ""
+		except Exception:
+			return ""
+
+	search = _get_qp_value("jobs_search")
+
 	with hdr_search_col:
-		search = st.text_input("", placeholder="Quick search jobs...", key=f"{key_prefix}jobs_search")
+		# Build hidden inputs to preserve existing query params while submitting search
+		try:
+			qp_items = list(dict(st.query_params).items())
+		except Exception:
+			qp_items = []
+		hidden_parts = []
+		for k, v in qp_items:
+			if k == "jobs_search":
+				continue
+			if isinstance(v, list):
+				if v:
+					hidden_parts.append(f"<input type='hidden' name='{k}' value='{str(v[-1]).replace("'", '&#39;').replace('"', '&quot;')}'>")
+			else:
+				hidden_parts.append(f"<input type='hidden' name='{k}' value='{str(v).replace("'", '&#39;').replace('"', '&quot;')}'>")
+		search_value = (search or "").replace("'", "&#39;").replace('"', '&quot;')
+		search_html = textwrap.dedent(
+			f"""
+			<form method='get' class='jobs-controls'>
+				<input type='text' class='search-box' name='jobs_search' placeholder='Quick search jobs...' value='{search_value}'>
+				{''.join(hidden_parts)}
+			</form>
+			"""
+		).strip()
+		st.markdown(search_html, unsafe_allow_html=True)
+	# Determine current view from query params (card/table)
+	view_param = None
+	try:
+		view_param = st.query_params.get("jobs_view")
+		if isinstance(view_param, list):
+			view_param = view_param[0] if view_param else None
+	except Exception:
+		view_param = None
+	current_view = "card" if (not view_param or str(view_param).lower() not in {"card", "table"}) else str(view_param).lower()
+
+	def _build_view_url(target_view: str) -> str:
+		try:
+			qp = dict(st.query_params)
+			clean_qp: Dict[str, str] = {}
+			for k, v in qp.items():
+				if k == "jobs_view":
+					continue
+				if isinstance(v, list):
+					if v:
+						clean_qp[k] = str(v[-1])
+				else:
+					clean_qp[k] = str(v)
+			clean_qp["jobs_view"] = target_view
+			return "?" + urlencode(clean_qp)
+		except Exception:
+			return f"?jobs_view={target_view}"
+
 	with hdr_view_col:
-		view_mode = st.radio(
-			"",
-			["Card View", "Table View"],
-			horizontal=True,
-			index=0,
-			key=f"{key_prefix}jobs_view",
-		)
+		# Custom view toggle to match design
+		toggle_html = textwrap.dedent(
+			f"""
+			<div class=\"view-toggle\">
+				<a class=\"toggle-btn{' active' if current_view=='card' else ''}\" href=\"{_build_view_url('card')}\">Card View</a>
+				<a class=\"toggle-btn{' active' if current_view=='table' else ''}\" href=\"{_build_view_url('table')}\">Table View</a>
+			</div>
+			"""
+		).strip()
+		st.markdown(toggle_html, unsafe_allow_html=True)
 
-	sort_col1, sort_col2, sort_col3 = st.columns([1, 2, 2])
-	with sort_col3:
-		sort_by = st.selectbox(
-			"Sort by:",
-			["Newest First", "Oldest First", "Salary (High to Low)", "Salary (Low to High)", "Company A-Z"],
-			key=f"{key_prefix}jobs_sort",
-		)
-	with sort_col2:
-		per_page = st.select_slider(
-			"Per page",
-			options=[6, 9, 12],
-			value=6,
-			key=f"{key_prefix}jobs_per_page",
-		)
+	# Removed: Sort by / Per page controls
+	sort_by = "Newest First"
 
-	# Filter, sort, and compute pagination bounds BEFORE creating the page widget
+	# Filter and sort only
 	working = _filter_jobs(df, search)
 	working = _sort_jobs(working, sort_by)
-	total_pages = max(1, (len(working) + int(per_page) - 1) // int(per_page))
 
-	# Clamp current page safely before widget creation
+	# Pagination (fixed page size)
+	per_page = 6
+
+	# If a page is present in the URL query, sync it into session state
+	try:
+		qp_val = st.query_params.get("jobs_page")
+		if isinstance(qp_val, list):
+			qp_val = qp_val[0] if qp_val else None
+		if qp_val:
+			st.session_state[page_key] = int(qp_val)
+	except Exception:
+		pass
+	# Clamp current page safely
 	current_page = int(st.session_state.get(page_key, 1))
+	total_pages = max(1, (len(working) + per_page - 1) // per_page)
 	if current_page < 1:
 		current_page = 1
 	if current_page > total_pages:
 		current_page = total_pages
 	st.session_state[page_key] = current_page
+	# Slice current page
+	page_df, _start_i, _end_i = _paginate(working, current_page, per_page)
 
-	with sort_col1:
-		page = st.number_input(
-			"Page",
-			min_value=1,
-			max_value=total_pages,
-			value=st.session_state[page_key],
-			step=1,
-			key=page_key,
-		)
-
-	# Paginate
-	page_df, start_i, end_i = _paginate(working, page, int(per_page))
-
-	# Pagination info
-	pagination_html = textwrap.dedent(
-		f"""
-		<div class="pagination-info">
-			<span class="showing-text">Showing {start_i}-{end_i} of {len(working)} jobs</span>
-			<div class="sort-controls">
-				<span class="sort-label">Sorted: {sort_by}</span>
-			</div>
-		</div>
-		"""
-	).strip()
-	st.markdown(pagination_html, unsafe_allow_html=True)
+	# Removed pagination info display
 
 	# Render view
-	if view_mode == "Card View":
+	if current_view == "card":
 		# Build all cards and emit inside one grid container so CSS grid works
 		cards = []
 		for _, job in page_df.iterrows():
@@ -176,7 +220,7 @@ def render_job_listings(key_prefix: str = ""):
 			skills_html = "".join([f"<span class='skill-tag'>{s}</span>" for s in job.get("skills", [])])
 			card_html = textwrap.dedent(
 				f"""
-				<div class="job-card">
+					<div class="job-card">
 					<span class="job-status {status_class}">{job.get('status','').upper()}</span>
 					<div class="job-title">{job['title']}</div>
 					<div class="job-company">{job['company']}</div>
@@ -184,7 +228,7 @@ def render_job_listings(key_prefix: str = ""):
 						<span><span class="location-icon"></span> {job['location']}</span>
 						<span><span class="time-icon"></span> {job.get('posted_date','')}</span>
 						<span><span class="seniority-icon"></span> {job['experience']}</span>
-					</div>
+						</div>
 					<div class="job-skills">{skills_html}</div>
 					<div class="job-footer">
 						<span class="salary-range">{job['salary']}</span>
@@ -253,23 +297,45 @@ def render_job_listings(key_prefix: str = ""):
 		).strip()
 		st.markdown(table_html, unsafe_allow_html=True)
 
-	# Pagination controls
-	prev_col, pages_col, next_col = st.columns([1, 3, 1])
-	with prev_col:
-		if st.button("← Previous", disabled=page <= 1, key=f"{key_prefix}prev"):
-			st.session_state[pending_key] = max(1, page - 1)
-			# Prefer st.rerun if available, else fallback
-			try:
-				st.rerun()
-			except Exception:
-				st.experimental_rerun()
-	with pages_col:
-		st.write(f"Page {page} of {total_pages}")
-	with next_col:
-		if st.button("Next →", disabled=page >= total_pages, key=f"{key_prefix}next"):
-			st.session_state[pending_key] = min(total_pages, page + 1)
-			try:
-				st.rerun()
-			except Exception:
-				st.experimental_rerun()
+	# Styled numeric pagination controls (HTML) at bottom
+	def _build_page_url(target_page: int) -> str:
+		try:
+			qp = dict(st.query_params)
+			clean_qp: Dict[str, str] = {}
+			for k, v in qp.items():
+				if k == "jobs_page":
+					continue
+				if isinstance(v, list):
+					if v:
+						clean_qp[k] = str(v[-1])
+				else:
+					clean_qp[k] = str(v)
+			clean_qp["jobs_page"] = str(target_page)
+			return "?" + urlencode(clean_qp)
+		except Exception:
+			return f"?jobs_page={target_page}"
+
+	max_buttons = 9
+	start_page = max(1, current_page - max_buttons // 2)
+	end_page = min(total_pages, start_page + max_buttons - 1)
+	start_page = max(1, end_page - max_buttons + 1)
+
+	prev_disabled = "style=\"opacity:0.5;pointer-events:none;\"" if current_page <= 1 else ""
+	next_disabled = "style=\"opacity:0.5;pointer-events:none;\"" if current_page >= total_pages else ""
+
+	page_links = []
+	for p in range(start_page, end_page + 1):
+		active_cls = " active" if p == current_page else ""
+		page_links.append(f"<a class=\"page-btn{active_cls}\" href=\"{_build_page_url(p)}\">{p}</a>")
+
+	pagination_html = textwrap.dedent(
+		f"""
+		<div class=\"pagination\">
+			<a class=\"page-btn\" {prev_disabled} href=\"{_build_page_url(max(1, current_page-1))}\">← Previous</a>
+			<div class=\"page-numbers\">{''.join(page_links)}</div>
+			<a class=\"page-btn\" {next_disabled} href=\"{_build_page_url(min(total_pages, current_page+1))}\">Next →</a>
+		</div>
+		"""
+	).strip()
+	st.markdown(pagination_html, unsafe_allow_html=True)
 

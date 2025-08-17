@@ -23,6 +23,7 @@
   border: 2px solid var(--border-color);
   border-radius: 20px;
   font-size: 14px;
+  margin-top: -40px;
   color: var(--text-secondary);
 }
 .jobs-controls {
@@ -39,6 +40,7 @@
   padding: 0 20px;
   color: var(--text-primary);
   font-size: 14px;
+  margin-top: 20px;
 }
 .view-toggle {
   display: flex;
@@ -47,6 +49,7 @@
   border: 2px solid var(--border-color);
   border-radius: 10px;
   padding: 4px;
+  margin-top: 15px;
 }
 .toggle-btn {
   padding: 8px 20px;
@@ -58,6 +61,7 @@
   color: var(--text-secondary);
   transition: all 0.3s ease;
   font-weight: 500;
+  text-decoration: none;
 }
 .toggle-btn.active {
   background: var(--brand-purple);
@@ -128,6 +132,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  width: 430px;
   box-shadow: 0 2px 4px var(--shadow-color);
 }
 .job-card:hover {
@@ -382,21 +387,23 @@ td.job-title-cell {
 .page-btn {
   padding: 8px 12px;
   background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(102, 254, 144, 0.2);
   border-radius: 6px;
-  color: var(--text-secondary);
+  color: #ffffff;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 14px;
+  text-decoration: none;
 }
 .page-btn:hover {
-  border-color: var(--brand-purple);
-  color: var(--brand-purple);
+  border-color: rgba(102, 254, 144, 0.2);
+  color: #ffffff;
+  text-decoration: none;
 }
 .page-btn.active {
   background: var(--brand-purple);
-  border-color: var(--brand-purple);
-  color: white;
+  border-color: rgba(102, 254, 144, 0.2);
+  color: #ffffff;
 }
 .page-btn:disabled {
   opacity: 0.5;
@@ -405,4 +412,12 @@ td.job-title-cell {
 .page-numbers {
   display: flex;
   gap: 5px;
+}
+
+/* Ensure links are never underlined */
+.pagination a.page-btn,
+.pagination a.page-btn:hover,
+.pagination a.page-btn:focus,
+.pagination a.page-btn:visited {
+  text-decoration: none;
 }

@@ -4,6 +4,7 @@ import textwrap
 import json
 import streamlit.components.v1 as components
 from fake_data import top_skills, seniority_distribution, salary_ranges_by_level, skills_by_role
+import plotly.express as px
 
 
 def render_top_skills():
@@ -143,3 +144,36 @@ def render_top_skills():
 	</div>
 '''
 		st.markdown(textwrap.dedent(right_html), unsafe_allow_html=True)
+
+	# Interactive bubble chart under the two cards
+	try:
+		bubble_df = pd.DataFrame({
+			"company": [
+				"TechCorp", "StartupXYZ", "Enterprise", "AnalyticsPro", "CreativeStudios",
+				"CloudBase", "DataWorks", "CyberSec", "DevOpsHub", "Productify"
+			],
+			"role": [
+				"Developer", "Developer", "Data", "Data", "Designer",
+				"DevOps", "Data", "Security", "DevOps", "Product"
+			],
+			"experience_years": [2, 4, 6, 3, 5, 7, 4, 8, 6, 5],
+			"avg_salary_k": [70, 95, 140, 110, 85, 130, 120, 150, 135, 105],
+			"openings": [12, 18, 9, 14, 10, 8, 11, 6, 7, 13],
+		})
+		fig = px.scatter(
+			bubble_df,
+			x="experience_years",
+			y="avg_salary_k",
+			size="openings",
+			color="role",
+			hover_name="company",
+			size_max=50,
+			labels={"experience_years": "Experience (years)", "avg_salary_k": "Average Salary (k$)"}
+		)
+		fig.update_traces(marker=dict(line=dict(width=1, color="rgba(102,254,144,0.6)")))
+		fig.update_layout(height=420, margin=dict(l=10, r=10, t=40, b=10), title={"text": "Openings vs Salary by Experience", "x": 0.02, "xanchor": "left"}, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", legend=dict(orientation="h", y=1.1, x=0, bgcolor="rgba(0,0,0,0)"))
+		fig.update_xaxes(gridcolor="rgba(113,116,255,0.15)", zeroline=False)
+		fig.update_yaxes(gridcolor="rgba(113,116,255,0.15)", zeroline=False)
+		st.plotly_chart(fig, use_container_width=True, config={"displaylogo": False, "modeBarButtonsToRemove": ["toggleHover", "resetScale2d", "select2d", "lasso2d"]})
+	except Exception:
+		pass

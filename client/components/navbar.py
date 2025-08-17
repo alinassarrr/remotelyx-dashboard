@@ -22,7 +22,7 @@ def render_navbar(header_data, theme):
 	st.markdown(f"""
 <style>
 	/* Navbar height variable */
-	:root {{ --navbar-height: 70px; --tabs-height: 44px; }}
+	:root {{ --navbar-height: 54px; --tabs-height: 44px; }}
 
 	/* Remove Streamlit default header and top padding so navbar can hug the top */
 	.stApp > header {{ display: none !important; }}
@@ -56,7 +56,12 @@ def render_navbar(header_data, theme):
 		background: var(--bg-secondary);
 		border-bottom: 1px solid var(--border-color);
 		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-		padding: 0 24px;
+		padding: 8px 17px;
+		padding-bottom: 42px;
+		padding-top: 43px;
+		padding-left: 20px;
+		height: var(--navbar-height);
+		overflow: visible;
 		box-sizing: border-box;
 		display: flex; align-items: center;
 	}}
@@ -75,15 +80,15 @@ def render_navbar(header_data, theme):
 	.navbar-left {{ display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 auto; }}
 	.navbar-right {{ display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: nowrap; white-space: nowrap; flex: 0 0 auto; }}
 
-	.logo-text {{ font-size: 88px; font-weight: 700; white-space: nowrap; }}
-	.logo-mark {{ display: flex; align-items: center; overflow: visible; }}
-	.logo-mark svg {{ height: calc(var(--navbar-height) * 1.4); width: auto; display: block; }}
+	.logo-text {{ font-size: 120px; font-weight: 700; white-space: nowrap; }}
+	.logo-mark {{ display: flex; align-items: center; overflow: visible; transform: scale(1.0); transform-origin: left center; }}
+	.logo-mark svg {{ height: 130px; width: auto; display: block; }}
 
 	/* Last updated badge */
 	.last-updated {{
 		font-size: 12px;
 		color: var(--text-muted);
-		padding: 8px 16px;
+		padding: 6px 12px;
 		background: var(--input-bg);
 		border-radius: 20px;
 	}}
@@ -94,17 +99,17 @@ def render_navbar(header_data, theme):
 
 	.user-profile {{
 		display: flex; align-items: center; gap: 10px;
-		padding: 8px 16px;
+		padding: 6px 12px;
 		background: var(--input-bg);
 		border: 1px solid var(--input-border);
 		border-radius: 25px;
 		cursor: pointer;
 	}}
 	.avatar {{
-		width: 34px; height: 34px; border-radius: 50%;
+		width: 28px; height: 28px; border-radius: 50%;
 		display: flex; align-items: center; justify-content: center;
 		background: linear-gradient(135deg, var(--brand-purple), var(--brand-purple-dark));
-		color: #fff; font-weight: 700; font-size: 14px;
+		color: #fff; font-weight: 700; font-size: 12px;
 	}}
 
 	/* Theme toggle button (mini inside user-profile) */
@@ -115,13 +120,13 @@ def render_navbar(header_data, theme):
 		right: auto !important;
 		bottom: auto !important;
 		left: auto !important;
-		width: 42px; height: 42px; border-radius: 50%;
+		width: 32px; height: 32px; border-radius: 50%;
 		background: var(--input-bg); border: 1px solid var(--input-border);
 		display: flex; align-items: center; justify-content: center; cursor: pointer;
 		font-size: 18px; text-decoration: none;
 	}}
 	.theme-toggle.mini {{
-		width: 34px; height: 34px; font-size: 16px;
+		width: 28px; height: 28px; font-size: 14px;
 		margin-right: 0;
 	}}
 
@@ -210,7 +215,8 @@ def render_navbar(header_data, theme):
 		# Inject inline style to ensure the SVG scales larger regardless of internal attributes
 		try:
 			if '<svg' in logo_svg:
-				logo_svg = logo_svg.replace('<svg ', '<svg style="height: calc(var(--navbar-height) * 1.4); width: auto; display: block;" ', 1)
+				# Set a fixed height for the SVG wordmark
+				logo_svg = logo_svg.replace('<svg ', '<svg style="height: 130px; width: auto; display: block;" ', 1)
 		except Exception:
 			pass
 	except Exception:

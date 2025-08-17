@@ -17,6 +17,7 @@
 	display: flex; /* fill height */
 	flex-direction: column;
 	height: 530px;
+	margin-bottom: 20px;
 }
 
 .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -36,7 +37,18 @@
 .dropdown-item:hover { background: var(--input-bg); color: var(--text-primary); }
 
 /* Skills list should grow to fill */
-.skills-list { display: flex; flex-direction: column; gap: 16px; flex: 1; }
+.skills-list {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	flex: 1;
+	position: relative;
+	height: 280px;
+	width: 100%;
+	overflow: auto;
+	will-change: transform;
+	direction: ltr;
+}
 .skill-item { display: flex; align-items: center; gap: 12px; transition: all 0.3s ease; }
 .skill-name { width: 90px; font-size: 14px; color: var(--text-secondary); font-weight: 500; }
 .skill-bar { flex: 1; height: 28px; background: var(--skill-bar-bg); border-radius: 14px; position: relative; overflow: hidden; }

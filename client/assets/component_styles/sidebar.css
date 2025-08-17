@@ -79,7 +79,7 @@ section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] { backgroun
 .filter-select option:hover { background: var(--brand-green); color: #000; }
 
 /* Input placeholder and focus */
-.filter-input::placeholder { color: var(--text-muted); }
+.filter-input::placeholder { color: var(--text-primary) !important; }
 .filter-input:focus { outline: none; border-color: var(--border-color); box-shadow: 0 0 0 3px rgba(102, 254, 144, 0.15); }
 
 /* Chips / results */
@@ -128,7 +128,7 @@ section[data-testid="stSidebar"] > div { padding: 16px !important; display: flex
 section[data-testid="stSidebar"] .sidebar-title,
 section[data-testid="stSidebar"] h2:has(> span),
 section[data-testid="stSidebar"] h3:has(> span) {
-    font-size: 18px !important;
+    font-size: 14px !important;
     font-weight: 800 !important;
     color: var(--text-primary) !important;
     text-transform: uppercase !important;
@@ -140,6 +140,43 @@ section[data-testid="stSidebar"] h3:has(> span) {
 section[data-testid="stSidebar"] .stSelectbox, section[data-testid="stSidebar"] .stMultiSelect, section[data-testid="stSidebar"] .stTextInput, section[data-testid="stSidebar"] .stDateInput { margin-bottom: 6px !important; }
 section[data-testid="stSidebar"] [data-testid="stSelectbox"] > div, section[data-testid="stSidebar"] [data-testid="stMultiSelect"] > div, section[data-testid="stSidebar"] [data-testid="stTextInput"] > div, section[data-testid="stSidebar"] [data-testid="stDateInput"] > div { background: transparent !important; border: 1px solid var(--border-color) !important; border-radius: 8px !important; }
 section[data-testid="stSidebar"] input[type="text"] { background: transparent !important; color: var(--text-primary) !important; font-size: 15px !important; }
+
+/* Dropdown menu (BaseWeb) background and sizing inside sidebar */
+section[data-testid="stSidebar"] [data-baseweb="menu"],
+section[data-testid="stSidebar"] [role="listbox"] {
+	background: var(--bg-primary) !important;
+	background-color: var(--bg-primary) !important;
+	color: var(--text-primary) !important;
+	max-height: 280px !important;
+	width: 100% !important;
+	overflow: auto !important;
+}
+/* Ensure inner menu container matches background */
+section[data-testid="stSidebar"] [data-baseweb="menu"] > div {
+	background: var(--bg-primary) !important;
+	background-color: var(--bg-primary) !important;
+}
+/* Ensure all inner elements inherit proper text color */
+section[data-testid="stSidebar"] [data-baseweb="menu"] * {
+	color: var(--text-primary) !important;
+}
+/* Option items background and hover */
+section[data-testid="stSidebar"] [role="option"] {
+	background: var(--bg-primary) !important;
+	background-color: var(--bg-primary) !important;
+	color: var(--text-primary) !important;
+}
+section[data-testid="stSidebar"] [role="option"]:hover {
+	background: var(--input-bg) !important;
+	background-color: var(--input-bg) !important;
+}
+section[data-testid="stSidebar"] [role="option"][aria-selected="true"] {
+	background: var(--chip-bg) !important;
+	background-color: var(--chip-bg) !important;
+}
+section[data-testid="stSidebar"] [role="option"] {
+	color: var(--text-primary) !important;
+}
 
 /* MultiSelect tag tokens: purple outline and text, minimal gap */
 .st-emotion-cache-tn0cau { gap: 4px !important; }
@@ -155,7 +192,7 @@ section[data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] + [data-bas
 section[data-testid="stSidebar"] [data-testid="stSelectbox"] > div:focus-within,
 section[data-testid="stSidebar"] [data-testid="stMultiSelect"] > div:focus-within,
 section[data-testid="stSidebar"] [data-testid="stTextInput"] > div:focus-within,
-section[data-testid="stSidebar"] [data-testid="stDateInput"] > div:focus-within { border-color: var(--border-color) !important; box-shadow: 0 0 0 3px rgba(102, 254, 144, 0.15) !important; }
+section[data-testid="stSidebar"] [data-testid="stDateInput"] > div:focus-within { border-color: var(--border-hover) !important; box-shadow: 0 0 0 3px rgba(102, 254, 144, 0.15) !important; }
 
 /* Buttons */
 section[data-testid="stSidebar"] .stButton > button { width: 100% !important; padding: 10px !important; border-radius: 8px !important; font-weight: 600 !important; }
