@@ -330,6 +330,30 @@ div[data-testid="stVerticalBlock"] > div:first-child {
 	opacity: 1 !important;
 }
 
+/* Override specific Streamlit container background */
+.st-f7 {
+    background: var(--input-bg) !important;
+    background-color: var(--input-bg) !important;
+}
+
+/* Remove unwanted background */
+.st-ec {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Match job listing search input background */
+.st-e8 {
+    background: var(--input-bg) !important;
+    background-color: var(--input-bg) !important;
+}
+
+/* Search input borders */
+.st-e7 { border-bottom-color: var(--border-color) !important; }
+.st-e6 { border-top-color: var(--border-color) !important; }
+.st-e5 { border-right-color: var(--border-color) !important; }
+.st-e4 { border-left-color: var(--border-color) !important; }
+
 /* Ensure placeholders use theme primary color across the app */
 input::placeholder,
 textarea::placeholder {

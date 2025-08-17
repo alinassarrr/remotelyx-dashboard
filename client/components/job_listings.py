@@ -31,6 +31,116 @@ def _filter_jobs(df: pd.DataFrame, search: str | None) -> pd.DataFrame:
 	return df
 
 
+def _apply_sidebar_filters(df: pd.DataFrame) -> pd.DataFrame:
+	"""Apply filters stored in st.session_state['filters'] to the jobs DataFrame."""
+	filters = st.session_state.get("filters")
+	if not filters:
+		return df
+
+	working = df.copy()
+
+	# Date range (days)
+	try:
+		days = filters.get("date_days")
+		if days and "posted_date_dt" in working:
+			# Use the most recent posted date as the reference so fake data filters sensibly
+			ref = pd.to_datetime(working["posted_date_dt"].max(), errors="coerce")
+			if pd.notna(ref):
+				cutoff = ref - pd.Timedelta(days=int(days))
+				working = working[working["posted_date_dt"] >= cutoff]
+	except Exception:
+		pass
+
+	# Company contains
+	try:
+		company_q = (filters.get("company_query") or "").strip().lower()
+		if company_q:
+			# Search across multiple fields when company search is provided
+			def _matches_company_any(row) -> bool:
+				return (
+					company_q in str(row.get("title", "")).lower()
+					or company_q in str(row.get("company", "")).lower()
+					or company_q in str(row.get("location", "")).lower()
+					or any(company_q in str(s).lower() for s in (row.get("skills", []) or []))
+					or company_q in str(row.get("salary", "")).lower()
+				)
+			working = working[working.apply(_matches_company_any, axis=1)]
+	except Exception:
+		pass
+
+	# Skills substring (also search all key fields when provided)
+	try:
+		skills_q = (filters.get("skills_query") or "").strip().lower()
+		if skills_q:
+			def _matches_skills_any(row) -> bool:
+				return (
+					skills_q in str(row.get("title", "")).lower()
+					or skills_q in str(row.get("company", "")).lower()
+					or skills_q in str(row.get("location", "")).lower()
+					or any(skills_q in str(s).lower() for s in (row.get("skills", []) or []))
+					or skills_q in str(row.get("salary", "")).lower()
+				)
+			working = working[working.apply(_matches_skills_any, axis=1)]
+	except Exception:
+		pass
+
+	# Seniority mapping
+	try:
+		selected_levels = filters.get("seniority") or []
+		if selected_levels:
+			junior_keys = {"entry", "junior"}
+			mid_keys = {"mid", "mid-level"}
+			senior_keys = {"senior", "lead", "executive"}
+
+			allowed: set[str] = set()
+			if any(l.lower().startswith("junior") for l in selected_levels):
+				allowed |= junior_keys
+			if any(l.lower().startswith("mid") for l in selected_levels):
+				allowed |= mid_keys
+			if any(l.lower().startswith("senior") for l in selected_levels):
+				allowed |= senior_keys
+
+			def _exp_ok(v: str) -> bool:
+				lv = str(v or "").lower()
+				return any(k in lv for k in allowed) if allowed else True
+
+			working = working[working["experience"].apply(_exp_ok)]
+	except Exception:
+		pass
+
+	# Role type (best-effort mapping over title and skills)
+	try:
+		role_type = (filters.get("role_type") or "").strip()
+		if role_type and role_type.lower() not in {"all roles", "all"}:
+			role_map = {
+				"developer": ["developer", "engineer", "frontend", "backend", "full", "mobile"],
+				"designer": ["designer", "design", "ui", "ux"],
+				"product manager": ["product"],
+				"devops": ["devops", "sre", "site reliability", "infrastructure"],
+				"data scientist": ["data", "ml", "machine", "ai", "analyst"],
+			}
+			needles = role_map.get(role_type.lower(), [])
+			if needles:
+				def _matches_role(row) -> bool:
+					title = str(row.get("title", "")).lower()
+					sk = [str(s).lower() for s in (row.get("skills", []) or [])]
+					return any(any(n in title for n in needles) or any(n in s for s in sk) for n in needles)
+				working = working[working.apply(_matches_role, axis=1)]
+	except Exception:
+		pass
+
+	# Salary range contains (best-effort)
+	try:
+		salary_sel = filters.get("salary_range")
+		if salary_sel and isinstance(salary_sel, str) and salary_sel.lower() != "all ranges":
+			token = salary_sel.replace(" ", "").lower()
+			working = working[working["salary"].str.replace(" ", "").str.lower().str.contains(token.split("-")[0].replace("+", ""))]
+	except Exception:
+		pass
+		
+	return working
+
+
 def _sort_jobs(df: pd.DataFrame, sort_by: str) -> pd.DataFrame:
 	# Supported: Newest First, Oldest First, Salary (High to Low/Low to High), Company A-Z
 	if sort_by == "Newest First":
@@ -87,18 +197,6 @@ def render_job_listings(key_prefix: str = ""):
 
 	# Controls state
 	hdr_title_col, hdr_search_col, hdr_view_col = st.columns([3, 3, 2])
-	with hdr_title_col:
-		header_html = textwrap.dedent(
-			"""
-			<div class="jobs-header">
-				<div class="jobs-title-section">
-					<h2 class="section-title">Job Listings</h2>
-					<span class="job-count">{count} Total Jobs</span>
-				</div>
-			</div>
-			"""
-		).format(count=len(df)).strip()
-		st.markdown(header_html, unsafe_allow_html=True)
 	# Read search from query params for HTML input
 	def _get_qp_value(name: str) -> str:
 		try:
@@ -112,30 +210,35 @@ def render_job_listings(key_prefix: str = ""):
 	search = _get_qp_value("jobs_search")
 
 	with hdr_search_col:
-		# Build hidden inputs to preserve existing query params while submitting search
-		try:
-			qp_items = list(dict(st.query_params).items())
-		except Exception:
-			qp_items = []
-		hidden_parts = []
-		for k, v in qp_items:
-			if k == "jobs_search":
-				continue
-			if isinstance(v, list):
-				if v:
-					hidden_parts.append(f"<input type='hidden' name='{k}' value='{str(v[-1]).replace("'", '&#39;').replace('"', '&quot;')}'>")
-			else:
-				hidden_parts.append(f"<input type='hidden' name='{k}' value='{str(v).replace("'", '&#39;').replace('"', '&quot;')}'>")
-		search_value = (search or "").replace("'", "&#39;").replace('"', '&quot;')
-		search_html = textwrap.dedent(
-			f"""
-			<form method='get' class='jobs-controls'>
-				<input type='text' class='search-box' name='jobs_search' placeholder='Quick search jobs...' value='{search_value}'>
-				{''.join(hidden_parts)}
-			</form>
-			"""
-		).strip()
-		st.markdown(search_html, unsafe_allow_html=True)
+		# Native Streamlit input; on change, update query param and rerun
+		def _update_search_qp():
+			val = st.session_state.get(f"{key_prefix}jobs_search_input", "")
+			try:
+				st.query_params["jobs_search"] = val
+			except Exception:
+				try:
+					qp = st.experimental_get_query_params()
+					qp["jobs_search"] = [val]
+					st.experimental_set_query_params(**qp)
+				except Exception:
+					pass
+			try:
+				st.rerun()
+			except Exception:
+				st.experimental_rerun()
+
+		# Wrap the Streamlit input within jobs-controls to apply styling
+		st.markdown('<div class="jobs-controls">', unsafe_allow_html=True)
+		
+		st.text_input(
+			"",
+			value=search,
+			placeholder="Quick search jobs...",
+			key=f"{key_prefix}jobs_search_input",
+			label_visibility="collapsed",
+			on_change=_update_search_qp,
+		)
+		st.markdown('</div>', unsafe_allow_html=True)
 	# Determine current view from query params (card/table)
 	view_param = None
 	try:
@@ -180,7 +283,26 @@ def render_job_listings(key_prefix: str = ""):
 
 	# Filter and sort only
 	working = _filter_jobs(df, search)
+	# Apply sidebar filters if present
+	try:
+		working = _apply_sidebar_filters(working)
+	except Exception:
+		pass
 	working = _sort_jobs(working, sort_by)
+
+	# Header (title + total jobs) with design, using filtered count
+	with hdr_title_col:
+		header_html = textwrap.dedent(
+			"""
+			<div class="jobs-header">
+				<div class="jobs-title-section">
+					<h2 class="section-title">Job Listings</h2>
+					<span class="job-count">{count} Total Jobs</span>
+				</div>
+			</div>
+			"""
+		).format(count=len(working)).strip()
+		st.markdown(header_html, unsafe_allow_html=True)
 
 	# Pagination (fixed page size)
 	per_page = 6
@@ -206,6 +328,19 @@ def render_job_listings(key_prefix: str = ""):
 	page_df, _start_i, _end_i = _paginate(working, current_page, per_page)
 
 	# Removed pagination info display
+
+	# No results state
+	if page_df.empty:
+		no_results_html = textwrap.dedent(
+			"""
+			<div style="background: var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:24px; text-align:center; color: var(--text-secondary);">
+				<div style="font-size:18px; font-weight:600; color: var(--text-primary); margin-bottom:6px;">No results</div>
+				<div>Try adjusting your search or clearing filters.</div>
+			</div>
+			"""
+		).strip()
+		st.markdown(no_results_html, unsafe_allow_html=True)
+		return
 
 	# Render view
 	if current_view == "card":
@@ -237,8 +372,8 @@ def render_job_listings(key_prefix: str = ""):
 							<button class="action-btn">Analyze</button>
 							<button class="action-btn">Details</button>
 						</div>
+						</div>
 					</div>
-				</div>
 				"""
 			).strip()
 			cards.append(card_html)
