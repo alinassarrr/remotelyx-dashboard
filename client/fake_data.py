@@ -9,6 +9,7 @@ header_data = {
         "notifications": 12
     },
     "theme": "dark",  # or "light"
+    "last_updated": "2 mins ago",
 }
 
 # Sidebar UI data for custom HTML sidebar
@@ -37,7 +38,7 @@ sidebar_ui = {
     ],
     "skills_suggestions": ["React", "Node.js", "Python", "AWS"],
     "companies": [
-        "All Companies", "TechCorp Inc.", "StartupXYZ", "Enterprise Solutions", "Analytics Pro", "Creative Studios"
+        
     ],
     "companies_placeholder": "Search company...",
     "salary_ranges": [
