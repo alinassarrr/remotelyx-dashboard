@@ -10,7 +10,7 @@ def render_navbar(header_data, theme):
 	st.markdown(f"""
 <style>
 	/* Navbar height variable */
-	:root {{ --navbar-height: 90px; }}
+	:root {{ --navbar-height: 70px; }}
 
 	/* Remove Streamlit default header and top padding so navbar can hug the top */
 	.stApp > header {{ display: none !important; }}
@@ -44,9 +44,8 @@ def render_navbar(header_data, theme):
 		background: var(--bg-secondary);
 		border-bottom: 1px solid var(--border-color);
 		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-		padding: 14px 24px;
+		padding: 0 24px;
 		box-sizing: border-box;
-		min-height: var(--navbar-height);
 		display: flex; align-items: center;
 	}}
 	.navbar-container * {{ color: var(--text-primary) !important; }}
@@ -56,7 +55,6 @@ def render_navbar(header_data, theme):
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 16px;
 		max-width: 1600px;
 		margin: 0 auto;
 		width: 100%;
@@ -65,9 +63,22 @@ def render_navbar(header_data, theme):
 	.navbar-left {{ display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 auto; }}
 	.navbar-right {{ display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: nowrap; white-space: nowrap; flex: 0 0 auto; }}
 
-	.logo-text {{ font-size: 28px; font-weight: 700; white-space: nowrap; }}
-	.logo-mark {{ display: flex; align-items: center; }}
-	.logo-mark svg {{ height: var(--navbar-height); width: auto; display: block; }}
+	.logo-text {{ font-size: 88px; font-weight: 700; white-space: nowrap; }}
+	.logo-mark {{ display: flex; align-items: center; overflow: visible; }}
+	.logo-mark svg {{ height: calc(var(--navbar-height) * 1.4); width: auto; display: block; }}
+
+	/* Last updated badge */
+	.last-updated {{
+		font-size: 12px;
+		color: var(--text-muted);
+		padding: 8px 16px;
+		background: var(--input-bg);
+		border-radius: 20px;
+	}}
+
+	@media (max-width: 992px) {{
+		.last-updated {{ display: none; }}
+	}}
 
 	.user-profile {{
 		display: flex; align-items: center; gap: 10px;
@@ -133,6 +144,12 @@ def render_navbar(header_data, theme):
 		logo_path = os.path.join(assets_dir, logo_file)
 		with open(logo_path, 'r', encoding='utf-8') as f:
 			logo_svg = f.read()
+		# Inject inline style to ensure the SVG scales larger regardless of internal attributes
+		try:
+			if '<svg' in logo_svg:
+				logo_svg = logo_svg.replace('<svg ', '<svg style="height: calc(var(--navbar-height) * 1.4); width: auto; display: block;" ', 1)
+		except Exception:
+			pass
 	except Exception:
 		logo_svg = None
 
@@ -143,6 +160,7 @@ def render_navbar(header_data, theme):
 				{(f'<div class="logo-mark">{logo_svg}</div>' if logo_svg else f'<span class="logo-text">{header_data["logo"]}<span style="color: var(--brand-blue); margin-left: 2px;">X</span></span>')}
 			</div>
 			<div class=\"navbar-right\">
+				<div class=\"last-updated\">Last updated: {header_data['last_updated']}</div>
 				<a class=\"theme-toggle mini\" href=\"?theme={next_theme}\" target=\"_self\" title=\"{label}\">{icon}</a>
 				<div class=\"user-profile\">
 					<div class=\"avatar\">{header_data['user']['avatar']}</div>
@@ -154,6 +172,3 @@ def render_navbar(header_data, theme):
 	</div>
 	"""
 	st.markdown(navbar_html, unsafe_allow_html=True)
-
-	# Spacer to prevent overlap with fixed navbar
-	st.markdown('<div style="height: var(--navbar-height);"></div>', unsafe_allow_html=True)
