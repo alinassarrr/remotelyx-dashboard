@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # MongoDB Database
@@ -17,6 +17,12 @@ services:
       - ./server/migrations/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - remotelyx_network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Redis Cache
   redis:
@@ -29,13 +35,18 @@ services:
       - redis_data:/data
     networks:
       - remotelyx_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Backend API (Optional - for containerized development)
-  api:
+  # Backend API
+  backend:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: remotelyx_api
+    container_name: remotelyx_backend
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -43,18 +54,128 @@ services:
       - MONGODB_URL=mongodb://admin:password123@mongodb:27017/remotelyx_dashboard?authSource=admin
       - REDIS_URL=redis://redis:6379/0
       - ENVIRONMENT=development
+      - MONGODB_DB=remotelyx_dashboard
+      - SECRET_KEY=your-super-secret-key-change-in-production
+      - BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:8501","http://localhost:5678"]
+      - OLLAMA_MODEL=llama3.2
     volumes:
       - ./server:/app
     depends_on:
-      - mongodb
-      - redis
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - remotelyx_network
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend (Streamlit Dashboard)
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: remotelyx_frontend
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_SERVER_HEADLESS=true
+      - STREAMLIT_SERVER_ENABLE_CORS=false
+    volumes:
+      - ./client:/app
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - remotelyx_network
+
+  # n8n Workflow Automation (Using MongoDB for data storage)
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: remotelyx_n8n
+    restart: unless-stopped
+    ports:
+      - "5679:5678"
+    environment:
+      # Use SQLite for n8n internal data (lightweight)
+      - DB_TYPE=sqlite
+      - DB_SQLITE_DATABASE=/home/node/.n8n/database.sqlite
+      # Authentication
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=hadihaidar1723@gmail.com
+      - N8N_BASIC_AUTH_PASSWORD=Treble23!
+      # Server configuration
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://a58098bfe268.ngrok-free.app//
+      - N8N_EDITOR_BASE_URL=https://a58098bfe268.ngrok-free.app//
+      - GENERIC_TIMEZONE=UTC
+      - N8N_SECURE_COOKIE=false
+      # MongoDB access for workflows (shared with main app)
+      - MONGODB_CONNECTION_URL=mongodb://admin:password123@mongodb:27017/remotelyx_dashboard?authSource=admin
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_USER=admin
+      - MONGODB_PASSWORD=password123
+      - MONGODB_DATABASE=remotelyx_dashboard
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - remotelyx_network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5678/healthz",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Ollama AI Service (Optional - for local AI)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: remotelyx_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - remotelyx_network
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 volumes:
   mongodb_data:
   redis_data:
+  n8n_data:
+  ollama_data:
 
 networks:
   remotelyx_network:

@@ -1,16 +1,21 @@
 """
+Job Scraper Service
 Core job scraping functionality with AI-powered extraction
 """
 import json
 import re
 import ollama
+import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from config import OLLAMA_MODEL, BROWSER_OPTIONS
 
+from ..core.config import get_settings
+from ..core.database import get_collection
+
+logger = logging.getLogger(__name__)
 
 class BrowserManager:
     """Manages Chrome browser setup and configuration"""
@@ -19,7 +24,15 @@ class BrowserManager:
     def get_chrome_options() -> Options:
         """Get optimized Chrome options for web scraping"""
         options = Options()
-        for option in BROWSER_OPTIONS:
+        browser_options = [
+            '--headless',
+            '--no-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--window-size=1920,1080',
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        ]
+        for option in browser_options:
             options.add_argument(option)
         return options
     
@@ -31,7 +44,7 @@ class BrowserManager:
             driver = webdriver.Chrome(options=options)
             return driver
         except Exception as e:
-            print(f"❌ Failed to initialize Chrome driver: {e}")
+            logger.error(f"Failed to initialize Chrome driver: {e}")
             return None
 
 
@@ -103,7 +116,7 @@ class AIDataExtractor:
         try:
             # Use FREE Ollama local AI
             response = ollama.chat(
-                model=OLLAMA_MODEL,
+                model="llama3.2",
                 messages=[
                     {"role": "system", "content": "You are a job data extraction expert. Always return valid JSON with complete data."},
                     {"role": "user", "content": prompt}
@@ -138,7 +151,7 @@ class AIDataExtractor:
             return job_data
             
         except Exception as e:
-            print(f"❌ AI extraction failed: {e}")
+            logger.error(f"AI extraction failed: {e}")
             # Fallback to basic extraction
             return AIDataExtractor._fallback_extraction(clean_text, url)
     
@@ -244,11 +257,13 @@ class AIDataExtractor:
         }
 
 
-class JobScraper:
-    """Main scraper class for job postings"""
+class JobScraperService:
+    """Main scraper service for job postings"""
     
     def __init__(self):
         self.driver = None
+        self.settings = get_settings()
+        self.jobs_collection = get_collection("jobs")
     
     def __enter__(self):
         return self
@@ -282,10 +297,10 @@ class JobScraper:
             return soup
             
         except Exception as e:
-            print(f"❌ Error fetching page: {e}")
+            logger.error(f"Error fetching page: {e}")
             return None
     
-    def scrape_job(self, url: str) -> Optional[Dict[str, Any]]:
+    async def scrape_job(self, url: str) -> Optional[Dict[str, Any]]:
         """Main scraping function with AI-powered extraction"""
         if not self.setup_driver():
             return None
@@ -295,18 +310,65 @@ class JobScraper:
             if not soup:
                 return None
             
-            print("🤖 Using AI-powered extraction...")
+            logger.info("Using AI-powered extraction...")
             try:
                 ai_extractor = AIDataExtractor()
                 job_data = ai_extractor.extract_job_data(self.driver.page_source, url)
-                print("✨ AI extraction successful!")
+                logger.info("AI extraction successful!")
                 return job_data
             except Exception as e:
-                print(f"⚠️ AI extraction failed: {e}")
+                logger.error(f"AI extraction failed: {e}")
                 return None
             
         except Exception as e:
-            print(f"❌ Error during scraping: {e}")
+            logger.error(f"Error during scraping: {e}")
             return None
         finally:
             self.cleanup()
+    
+    async def scrape_and_save_job(self, url: str) -> Dict[str, Any]:
+        """Scrape job and save to database"""
+        job_data = await self.scrape_job(url)
+        if not job_data:
+            raise ValueError("Failed to scrape job data")
+        
+        # Check for duplicates
+        existing_job = await self.jobs_collection.find_one({"job_link": url})
+        if existing_job:
+            logger.info(f"Job already exists: {url}")
+            return job_data
+        
+        # Save to database
+        job_data["created_at"] = datetime.now()
+        result = await self.jobs_collection.insert_one(job_data)
+        job_data["_id"] = str(result.inserted_id)
+        
+        logger.info(f"Job saved successfully: {job_data['title']} at {job_data['company']}")
+        return job_data
+    
+    async def get_recent_jobs(self, limit: int = 10, skip: int = 0) -> List[Dict[str, Any]]:
+        """Get recent jobs from database"""
+        cursor = self.jobs_collection.find().sort("created_at", -1).skip(skip).limit(limit)
+        jobs = await cursor.to_list(length=limit)
+        
+        # Convert ObjectId to string for JSON serialization
+        for job in jobs:
+            job["_id"] = str(job["_id"])
+        
+        return jobs
+    
+    async def get_job_stats(self) -> Dict[str, Any]:
+        """Get job scraping statistics"""
+        total_jobs = await self.jobs_collection.count_documents({})
+        
+        # Jobs added today
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        jobs_today = await self.jobs_collection.count_documents({
+            "created_at": {"$gte": today}
+        })
+        
+        return {
+            "total_jobs": total_jobs,
+            "jobs_today": jobs_today,
+            "last_updated": datetime.now().isoformat()
+        }
