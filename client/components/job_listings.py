@@ -146,6 +146,14 @@ def _apply_sidebar_filters(df: pd.DataFrame) -> pd.DataFrame:
 			working = working[working["location"].str.lower().str.contains(location_q, na=False)]
 	except Exception:
 		pass
+
+	# Status filter
+	try:
+		status_filter = filters.get("status_filter")
+		if status_filter:
+			working = working[working["status"].str.upper() == status_filter.upper()]
+	except Exception:
+		pass
 		
 	return working
 
@@ -362,18 +370,19 @@ def render_job_listings(key_prefix: str = ""):
 	if current_view == "card":
 		# Create clean job cards with integrated status dropdown
 		for idx, (_, job) in enumerate(page_df.iterrows()):
-			current_status = job.get('status', 'NEW')  # Default to NEW
+			# Get the actual status from the database (already transformed in API client)
+			current_status = job.get('status', 'NEW').upper()  # Default to NEW, ensure uppercase
 			
 			# Ensure current_status is one of the valid options
-			if current_status.upper() not in ["NEW", "ANALYZED", "MATCHED"]:
+			if current_status not in ["NEW", "ANALYZED", "MATCHED"]:
 				current_status = "NEW"
 			
 			# Create skills HTML
 			skills_html = "".join([f"<span class='skill-tag'>{s}</span>" for s in job.get("skills", [])])
 			
-			# Check if we have an updated status in session state
+			# Check if we have an updated status in session state (for immediate UI feedback)
 			updated_jobs = st.session_state.get("updated_jobs", {})
-			display_status = updated_jobs.get(job['id'], current_status.upper())
+			display_status = updated_jobs.get(job['id'], current_status)
 			
 			# Create the clean job card with integrated status dropdown
 			card_html = textwrap.dedent(
@@ -389,16 +398,6 @@ def render_job_listings(key_prefix: str = ""):
 					<div class="job-skills">{skills_html}</div>
 					<div class="job-footer">
 						<span class="salary-range">{job['salary']}</span>
-						<div class="status-dropdown-container">
-							<label class="status-label">Status:</label>
-							<div class="status-dropdown-wrapper">
-								<select class="status-dropdown" data-job-id="{job['id']}" data-current-status="{display_status}">
-									<option value="NEW" {"selected" if display_status == "NEW" else ""}>NEW</option>
-									<option value="ANALYZED" {"selected" if display_status == "ANALYZED" else ""}>ANALYZED</option>
-									<option value="MATCHED" {"selected" if display_status == "MATCHED" else ""}>MATCHED</option>
-								</select>
-							</div>
-						</div>
 					</div>
 				</div>
 				"""
@@ -406,70 +405,64 @@ def render_job_listings(key_prefix: str = ""):
 			
 			st.markdown(card_html, unsafe_allow_html=True)
 			
-			# Add JavaScript for the integrated status dropdown
-			js_code = f"""
-			<script>
-			document.addEventListener('DOMContentLoaded', function() {{
-				const statusDropdown = document.querySelector('.status-dropdown[data-job-id="{job['id']}"]');
-				if (statusDropdown) {{
-					statusDropdown.addEventListener('change', function() {{
-						const newStatus = this.value;
-						const jobId = this.getAttribute('data-job-id');
-						
-						// Update the dropdown styling based on selected status
-						this.className = 'status-dropdown status-' + newStatus.toLowerCase();
-						
-						// Show status change indicator
-						showStatusChangeIndicator(jobId, newStatus);
-					}});
-					
-					// Set initial status styling
-					const currentStatus = this.getAttribute('data-current-status');
-					this.className = 'status-dropdown status-' + currentStatus.toLowerCase();
-				}}
-			}});
-			
-			function showStatusChangeIndicator(jobId, newStatus) {{
-				// Create or update status indicator
-				let indicator = document.getElementById('status-indicator-' + jobId);
-				if (!indicator) {{
-					indicator = document.createElement('div');
-					indicator.id = 'status-indicator-' + jobId;
-					indicator.className = 'status-change-indicator';
-					indicator.innerHTML = `
-						<span class="indicator-text">Status changed to {display_status}</span>
-						<button class="update-status-btn" onclick="updateJobStatus('${{jobId}}', '${{newStatus}}')">
-							Update Status
-						</button>
-					`;
-					
-					// Insert after the job card
-					const jobCard = document.querySelector('.job-card-clean');
-					if (jobCard) {{
-						jobCard.parentNode.insertBefore(indicator, jobCard.nextSibling);
-					}}
-				}} else {{
-					indicator.querySelector('.indicator-text').textContent = `Status changed to ${{newStatus}}`;
-				}}
-			}}
-			
-			function updateJobStatus(jobId, newStatus) {{
-				// Here you would typically make an API call to update the status
-				// For now, we'll just show a success message
-				const indicator = document.getElementById('status-indicator-' + jobId);
-				if (indicator) {{
-					indicator.innerHTML = '<span class="indicator-success">✅ Status updated successfully!</span>';
-					setTimeout(() => {{
-						indicator.remove();
-					}}, 3000);
-				}}
-			}}
-			</script>
-			"""
-			st.markdown(js_code, unsafe_allow_html=True)
+			# Add status dropdown using Streamlit components
+			col1, col2 = st.columns([3, 1])
+			with col1:
+				pass  # Empty space for layout
+			with col2:
+				# Status dropdown with update functionality
+				status_key = f"status_{job['id']}_{idx}"
+				
+				# Use callback to handle status changes
+				def _handle_status_change():
+					new_val = st.session_state[status_key]
+					if new_val != display_status:
+						# Update the status in backend
+						success = update_job_status(job['id'], new_val)
+						if success:
+							# Store the updated status in session state
+							if "updated_jobs" not in st.session_state:
+								st.session_state.updated_jobs = {}
+							st.session_state.updated_jobs[job['id']] = new_val
+							# Set a success flag
+							st.session_state[f"status_success_{job['id']}"] = new_val
+						else:
+							# Set an error flag
+							st.session_state[f"status_error_{job['id']}"] = True
+				
+				# Get safe index for dropdown
+				options = ["NEW", "ANALYZED", "MATCHED"]
+				try:
+					current_index = options.index(display_status) if display_status in options else 0
+				except ValueError:
+					current_index = 0
+				
+				new_status = st.selectbox(
+					"Status",
+					options=options,
+					index=current_index,
+					key=status_key,
+					label_visibility="collapsed",
+					on_change=_handle_status_change,
+					help=f"Current: {display_status}"
+				)
+				
+				# Show status messages
+				if f"status_success_{job['id']}" in st.session_state:
+					success_status = st.session_state[f"status_success_{job['id']}"]
+					st.success(f"✅ {success_status}", icon="✅")
+					# Clear the success flag after showing
+					del st.session_state[f"status_success_{job['id']}"]
+				
+				if f"status_error_{job['id']}" in st.session_state:
+					st.error("❌ Update failed", icon="❌")
+					# Clear the error flag after showing
+					del st.session_state[f"status_error_{job['id']}"]
 			
 			# Add separator between job cards
 			st.markdown("---")
+
+
 	
 	else:
 		# Table view - simplified with status dropdown in table
@@ -497,11 +490,19 @@ def render_job_listings(key_prefix: str = ""):
 		
 		# Table rows with integrated status dropdowns
 		for idx, (_, j) in enumerate(page_df.iterrows()):
-			current_status = j.get('status', 'NEW')
+			# Get the actual status from the database (already transformed in API client)
+			current_status = j.get('status', 'NEW').upper()  # Ensure uppercase
+			if current_status not in ["NEW", "ANALYZED", "MATCHED"]:
+				current_status = "NEW"
+				
 			skills_html = "".join([f"<span class='table-skill'>{s}</span>" for s in j.get("skills", [])])
 			
+			# Check if we have an updated status in session state
+			updated_jobs = st.session_state.get("updated_jobs", {})
+			table_display_status = updated_jobs.get(j['id'], current_status)
+			
 			# Create status badge for table view
-			status_badge_html = f'<span class="status-badge" data-status="{current_status.upper()}">{current_status.upper()}</span>'
+			status_badge_html = f'<span class="status-badge status-{table_display_status.lower()}" data-status="{table_display_status}">{table_display_status}</span>'
 			
 			# Static row content with status badge
 			row_html = textwrap.dedent(
@@ -528,50 +529,71 @@ def render_job_listings(key_prefix: str = ""):
 				pass
 			
 			with col8:
-				# Status dropdown - simple 3 options
+				# Status dropdown for table view
 				table_status_key = f"table_status_{j['id']}_{idx}"
 				
-				# Check if we have an updated status in session state
-				updated_jobs = st.session_state.get("updated_jobs", {})
-				table_display_status = updated_jobs.get(j['id'], current_status.upper())
+				# Get available options (could restrict based on current status)
+				options = ["NEW", "ANALYZED", "MATCHED"]
 				
-				# Use callback to handle status changes
-				def _handle_table_status_change():
-					new_val = st.session_state[table_status_key]
-					if new_val != table_display_status:
+				# Show dropdown to change status - no callback for now
+				new_status = st.selectbox(
+					"Change Status",
+					options=options,
+					index=options.index(table_display_status) if table_display_status in options else 0,
+					key=table_status_key,
+					label_visibility="collapsed",
+					help=f"Current status: {table_display_status}"
+				)
+				
+				# Check if the user changed the status from current display status
+				if new_status != table_display_status:
+					# Add update button that triggers the status change
+					update_button_key = f"update_btn_{j['id']}_{idx}"
+					if st.button(f"Update", key=update_button_key, type="primary"):
 						# Update the status in backend
-						success = update_job_status(j['id'], new_val)
+						import logging
+						logger = logging.getLogger(__name__)
+						logger.info(f"Manual table status update for job {j['id']} from {table_display_status} to {new_status}")
+						
+						success = update_job_status(j['id'], new_status)
 						if success:
-							# Store the updated status in session state
+							# Store the updated status in session state for immediate UI feedback
 							if "updated_jobs" not in st.session_state:
 								st.session_state.updated_jobs = {}
-							st.session_state.updated_jobs[j['id']] = new_val
+							st.session_state.updated_jobs[j['id']] = new_status
 							# Set a success flag
-							st.session_state[f"table_status_success_{j['id']}"] = new_val
+							st.session_state[f"table_status_success_{j['id']}"] = new_status
+							# Clear any error flags
+							if f"table_status_error_{j['id']}" in st.session_state:
+								del st.session_state[f"table_status_error_{j['id']}"]
+							# Force rerun to refresh the status badge in the table
+							try:
+								st.rerun()
+							except Exception:
+								try:
+									st.experimental_rerun()
+								except Exception:
+									pass
 						else:
 							# Set an error flag
 							st.session_state[f"table_status_error_{j['id']}"] = True
+							# Clear any success flags
+							if f"table_status_success_{j['id']}" in st.session_state:
+								del st.session_state[f"table_status_success_{j['id']}"]
+							# Show error message
+							st.error("❌ Failed to update status", icon="❌")
 				
-				new_status = st.selectbox(
-					"Status",
-					options=["NEW", "ANALYZED", "MATCHED"],
-					index=["NEW", "ANALYZED", "MATCHED"].index(table_display_status) if table_display_status in ["NEW", "ANALYZED", "MATCHED"] else 0,
-					key=table_status_key,
-					label_visibility="collapsed",
-					on_change=_handle_table_status_change
-				)
-				
-				# Show status messages
+				# Show status messages below dropdown
 				if f"table_status_success_{j['id']}" in st.session_state:
 					success_status = st.session_state[f"table_status_success_{j['id']}"]
-					st.success(f"✅ Status updated to {success_status}!", icon="✅")
+					st.success(f"✅ Updated to {success_status}!", icon="✅")
 					# Clear the success flag after showing
-					del st.session_state[f"table_status_success_{j['id']}"]
+					st.session_state.pop(f"table_status_success_{j['id']}", None)
 				
 				if f"table_status_error_{j['id']}" in st.session_state:
 					st.error("❌ Failed to update status", icon="❌")
 					# Clear the error flag after showing
-					del st.session_state[f"table_status_error_{j['id']}"]
+					st.session_state.pop(f"table_status_error_{j['id']}", None)
 		
 		st.markdown('</tbody></table></div>', unsafe_allow_html=True)
 

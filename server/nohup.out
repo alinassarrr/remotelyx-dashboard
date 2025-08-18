@@ -1,0 +1,8 @@
+Usage: uvicorn [OPTIONS] APP
+Try 'uvicorn --help' for help.
+
+Error: Got unexpected extra arguments (u003e backend.log 2u003eu00261 u0026)
+Usage: uvicorn [OPTIONS] APP
+Try 'uvicorn --help' for help.
+
+Error: Got unexpected extra arguments (u003e server.log 2u003eu00261 u0026 echo "Server started in background")

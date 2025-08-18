@@ -57,6 +57,10 @@ async def get_dashboard_metrics(
         skill_result = await jobs_collection.aggregate(pipeline).to_list(1)
         skill_count = skill_result[0]["skill_count"] if skill_result else 0
         
+        # Calculate match rate (percentage of MATCHED jobs)
+        matched_jobs = await jobs_collection.count_documents({"status": "MATCHED"})
+        match_rate = (matched_jobs / max(total_jobs, 1)) * 100
+        
         return {
             "active_jobs": total_jobs,
             "new_this_week": recent_jobs,
@@ -64,7 +68,7 @@ async def get_dashboard_metrics(
             "total_locations": location_count,
             "total_skills": skill_count,
             "avg_process_time": "3.2 days",
-            "success_rate": round((total_jobs / max(total_jobs + 10, 1)) * 100, 1),
+            "match_rate": round(match_rate, 1),
             "total_applications": total_jobs * 2,  # Estimated
             "interviews_scheduled": int(total_jobs * 0.15),
             "offers_sent": int(total_jobs * 0.08),

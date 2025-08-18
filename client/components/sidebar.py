@@ -98,6 +98,14 @@ def render_sidebar():
 		locations = [l for l in real_locations if l and (location_query or "").lower() in l.lower()]
 		st.markdown('<div class="search-results">' + ''.join(f'<div class="search-result">{l}</div>' for l in locations[:10]) + '</div>', unsafe_allow_html=True)
 		st.markdown('</div>', unsafe_allow_html=True)
+
+		# Status Filter
+		st.markdown('<div class="filter-group">', unsafe_allow_html=True)
+		st.markdown('<label class="filter-label">Status</label>', unsafe_allow_html=True)
+		# Get status options from API (with All as default)
+		status_options = ["All Status"] + filter_options.get("status_options", ["NEW", "ANALYZED", "MATCHED"])
+		status_filter = st.selectbox("Status", status_options, label_visibility="collapsed")
+		st.markdown('</div>', unsafe_allow_html=True)
 		st.markdown('</div>', unsafe_allow_html=True)
 
 		# Close section wrapper
@@ -134,6 +142,7 @@ def render_sidebar():
 				"company_query": (company_query or "").strip(),
 				"employment_type": employment_type,
 				"location_query": (location_query or "").strip(),
+				"status_filter": status_filter if status_filter != "All Status" else None,
 			}
 			st.rerun()
 

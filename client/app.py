@@ -63,14 +63,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Load CSS
+# Load CSS with cache busting
 def load_css():
+    import time
+    cache_buster = str(int(time.time()))
     css_dir = os.path.join(os.path.dirname(__file__), 'assets')
     
     # Global styles
     try:
         with open(os.path.join(css_dir, 'styles.css')) as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+            css_content = f.read()
+            st.markdown(f'<style>/* Cache buster: {cache_buster} */\n{css_content}</style>', unsafe_allow_html=True)
     except FileNotFoundError:
         st.warning("Global CSS file not found")
     
@@ -88,7 +91,8 @@ def load_css():
         try:
             css_path = os.path.join(css_dir, 'component_styles', css_file)
             with open(css_path) as f:
-                st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+                css_content = f.read()
+                st.markdown(f'<style>/* {css_file} - Cache buster: {cache_buster} */\n{css_content}</style>', unsafe_allow_html=True)
         except FileNotFoundError:
             st.warning(f"CSS file not found: {css_file}")
 
@@ -189,6 +193,35 @@ def main():
     # Load CSS and apply theme overrides
     load_css()
     apply_theme(current_theme)
+    
+    # Force active element colors with high specificity
+    st.markdown("""
+    <style>
+    /* Force active elements to have white text with high priority */
+    .toggle-btn.active,
+    .page-btn.active,
+    .chip.active {
+        color: #ffffff !important;
+    }
+    
+    /* Force hover states to white */
+    .action-btn:hover,
+    .table-action-btn:hover,
+    .skill-tag:hover,
+    .change-status-btn:hover,
+    [role="option"]:hover {
+        color: #ffffff !important;
+    }
+    
+    /* Force button text to white */
+    .btn-apply,
+    .update-status-btn,
+    section[data-testid="stSidebar"] .stButton > button:first-child,
+    section[data-testid="stSidebar"] .filter-actions .stButton:first-of-type > button {
+        color: #ffffff !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     # Render navbar (pass current theme)
     render_navbar(header_data, current_theme)
@@ -207,14 +240,8 @@ def main():
     col1, col2, col3 = st.columns([1, 3, 1])
     
     with col1:
-        # Show API status and refresh button
+        # Show API status
         api_connected = check_api_status()
-        if st.sidebar.button("🔄 Refresh Data", help="Refresh data from backend API"):
-            refresh_live_data()
-            try:
-                st.rerun()  # New method
-            except AttributeError:
-                st.experimental_rerun()  # Fallback for older versions
         
         render_sidebar()
     
@@ -224,7 +251,6 @@ def main():
         if current_view_key == "overview":
             render_stats_cards()
             render_top_skills()
-            render_job_listings(key_prefix="overview_")
         elif current_view_key == "job-listings":
             render_job_listings(key_prefix="listings_")
         elif current_view_key == "reports":

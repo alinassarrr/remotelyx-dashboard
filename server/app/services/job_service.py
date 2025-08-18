@@ -50,6 +50,7 @@ class JobService:
         location: Optional[str] = None,
         seniority: Optional[str] = None,
         employment_type: Optional[str] = None,
+        status: Optional[str] = None,
         skills: Optional[List[str]] = None,
         date_from: Optional[datetime] = None,
         date_to: Optional[datetime] = None,
@@ -72,6 +73,9 @@ class JobService:
             
             if employment_type:
                 filter_query["data.employment_type"] = {"$regex": employment_type, "$options": "i"}
+            
+            if status:
+                filter_query["status"] = status
             
             if skills:
                 filter_query["$or"] = [
@@ -130,31 +134,6 @@ class JobService:
             
         except Exception as e:
             logger.error(f"Error updating job: {e}")
-            raise e
-    
-    async def update_job_status(self, job_id: str, new_status: str) -> Optional[ScrapedJob]:
-        """Update only the status of a job."""
-        try:
-            if not ObjectId.is_valid(job_id):
-                return None
-            
-            # Update the status in the job data
-            result = await self.collection.update_one(
-                {"_id": ObjectId(job_id)},
-                {
-                    "$set": {
-                        "data.status": new_status,
-                        "updated_at": datetime.utcnow()
-                    }
-                }
-            )
-            
-            if result.modified_count > 0:
-                return await self.get_job_by_id(job_id)
-            return None
-            
-        except Exception as e:
-            logger.error(f"Error updating job status: {e}")
             raise e
     
     async def update_job_status(self, job_id: str, status: str) -> bool:

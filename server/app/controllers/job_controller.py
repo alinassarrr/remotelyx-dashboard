@@ -54,6 +54,7 @@ async def get_jobs(
     location: Optional[str] = Query(None, description="Filter by location"),
     seniority: Optional[str] = Query(None, description="Filter by seniority level"),
     employment_type: Optional[str] = Query(None, description="Filter by employment type"),
+    status: Optional[str] = Query(None, description="Filter by job status (NEW, ANALYZED, MATCHED)"),
     skills: Optional[str] = Query(None, description="Comma-separated list of skills to filter by"),
     date_from: Optional[str] = Query(None, description="Filter jobs created from this date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="Filter jobs created until this date (YYYY-MM-DD)"),
@@ -99,6 +100,7 @@ async def get_jobs(
             location=location,
             seniority=seniority,
             employment_type=employment_type,
+            status=status,
             skills=skills_list,
             date_from=date_from_dt,
             date_to=date_to_dt,
@@ -278,13 +280,17 @@ async def get_filter_options(
         ]
         soft_skills = await job_service.collection.aggregate(pipeline).to_list(None)
         
+        # Status options (predefined)
+        status_options = ["NEW", "ANALYZED", "MATCHED"]
+        
         return {
             "companies": [item["_id"] for item in companies if item["_id"]],
             "locations": [item["_id"] for item in locations if item["_id"]],
             "seniorities": [item["_id"] for item in seniorities if item["_id"]],
             "employment_types": [item["_id"] for item in employment_types if item["_id"]],
             "tech_skills": [item["_id"] for item in tech_skills if item["_id"]],
-            "soft_skills": [item["_id"] for item in soft_skills if item["_id"]]
+            "soft_skills": [item["_id"] for item in soft_skills if item["_id"]],
+            "status_options": status_options
         }
         
     except Exception as e:

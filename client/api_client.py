@@ -185,7 +185,7 @@ def get_live_metrics() -> dict:
             "total_companies": 0,
             "total_locations": 0,
             "total_skills": 0,
-            "success_rate": 0.0
+            "match_rate": 0.0
         }
     
     # Get real dashboard metrics from API (this returns the full metrics with counts)
@@ -210,7 +210,7 @@ def get_live_metrics() -> dict:
             "total_locations": num_locations, 
             "total_skills": num_skills,
             "avg_process_time": "3.2 days",
-            "success_rate": 94.2,
+            "match_rate": 15.5,  # Estimated match rate fallback
             "total_applications": estimated_jobs,
             "interviews_scheduled": int(estimated_jobs * 0.15),
             "offers_sent": int(estimated_jobs * 0.08),
@@ -330,20 +330,27 @@ def update_job_status(job_id: str, status: str) -> bool:
     """Update job status via API"""
     client = get_api_client()
     
+    # Log the request details
+    logger.info(f"Attempting to update job {job_id} status to {status}")
+    
     # Check if backend is available
     health = client.health_check()
     if health.get("status") != "healthy":
         logger.warning("Backend not available, cannot update job status")
         return False
     
+    logger.info(f"Backend is healthy, proceeding with status update")
+    
     # Update job status
     response = client.update_job_status(job_id, status)
+    
+    logger.info(f"API response for job {job_id}: {response}")
     
     if response.get("message"):
         logger.info(f"Successfully updated job {job_id} status to {status}")
         return True
     else:
-        logger.error(f"Failed to update job {job_id} status")
+        logger.error(f"Failed to update job {job_id} status - no message in response")
         return False
 
 def get_live_roles() -> dict:

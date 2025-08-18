@@ -84,7 +84,6 @@ def check_api_status():
     health = client.health_check()
     
     if health.get("status") == "healthy":
-        st.sidebar.success("✅ API Connected")
         return True
     else:
         st.sidebar.error("❌ API Disconnected - Using cached data")

@@ -34,8 +34,8 @@ def render_stats_cards():
 			<div class="metric-change">in demand</div>
 		</div>
 		<div class="metric-card">
-			<div class="metric-label">Success Rate</div>
-			<div class="metric-value">{metrics_data.get('success_rate', 0):.1f}%</div>
+			<div class="metric-label">Matching Percentage</div>
+			<div class="metric-value">{metrics_data.get('match_rate', 0):.1f}%</div>
 			<div class="metric-change">↑ {change_percentage}% this week</div>
 		</div>
 	</div>
