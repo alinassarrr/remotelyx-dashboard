@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import connect_to_mongo, close_mongo_connection
-from app.controllers import auth_controller, job_controller, analytics_controller, scraped_jobs_controller
+from app.controllers import auth_controller, job_controller, analytics_controller, scraped_jobs_controller, seeder_controller, dashboard_controller
 
 # Create FastAPI app
 app = FastAPI(
@@ -25,6 +25,8 @@ app.include_router(auth_controller.router, prefix=settings.API_V1_STR)
 app.include_router(job_controller.router, prefix=settings.API_V1_STR)
 app.include_router(analytics_controller.router, prefix=settings.API_V1_STR)
 app.include_router(scraped_jobs_controller.router)
+app.include_router(seeder_controller.router, prefix=settings.API_V1_STR)
+app.include_router(dashboard_controller.router, prefix=settings.API_V1_STR)
 
 # Startup event
 @app.on_event("startup")

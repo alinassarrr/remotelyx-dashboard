@@ -5,7 +5,9 @@ from typing import List, Dict, Tuple
 from urllib.parse import urlencode
 import textwrap
 
-from fake_data import job_listings as FAKE_JOBS
+# Import live data functions
+from live_data import get_job_listings
+from api_client import update_job_status
 
 
 def _parse_date(df: pd.DataFrame) -> pd.DataFrame:
@@ -176,10 +178,17 @@ def _paginate(df: pd.DataFrame, page: int, per_page: int) -> Tuple[pd.DataFrame,
 
 def render_job_listings(key_prefix: str = ""):
 	"""
-	Render Job Listings with the provided design, reading data from fake_data.job_listings.
+	Render Job Listings with live data from the API.
 	Includes header, search, view toggle, sort, pagination, and cards/table rendering.
 	"""
-	df = pd.DataFrame(FAKE_JOBS)
+	# Get live jobs data from API
+	live_jobs = get_job_listings(limit=100)  # Get more jobs for better pagination
+	if not live_jobs:
+		# Fallback message if no API data
+		st.warning("🔌 Backend API not available. Please check the connection.")
+		return
+	
+	df = pd.DataFrame(live_jobs)
 	df = _parse_date(df)
 
 	# Keys for session state
@@ -344,46 +353,149 @@ def render_job_listings(key_prefix: str = ""):
 
 	# Render view
 	if current_view == "card":
-		# Build all cards and emit inside one grid container so CSS grid works
-		cards = []
-		for _, job in page_df.iterrows():
-			status_class = (
-				"new" if "new" in job.get("status", "").lower() else
-				"analyzed" if "analy" in job.get("status", "").lower() else
-				"matched" if "match" in job.get("status", "").lower() else ""
-			)
+		# Create clean job cards with integrated status dropdown
+		for idx, (_, job) in enumerate(page_df.iterrows()):
+			current_status = job.get('status', 'NEW')  # Default to NEW
+			
+			# Ensure current_status is one of the valid options
+			if current_status.upper() not in ["NEW", "ANALYZED", "MATCHED"]:
+				current_status = "NEW"
+			
+			# Create skills HTML
 			skills_html = "".join([f"<span class='skill-tag'>{s}</span>" for s in job.get("skills", [])])
+			
+			# Check if we have an updated status in session state
+			updated_jobs = st.session_state.get("updated_jobs", {})
+			display_status = updated_jobs.get(job['id'], current_status.upper())
+			
+			# Create the clean job card with integrated status dropdown
 			card_html = textwrap.dedent(
 				f"""
-					<div class="job-card">
-					<span class="job-status {status_class}">{job.get('status','').upper()}</span>
+				<div class="job-card-clean">
 					<div class="job-title">{job['title']}</div>
 					<div class="job-company">{job['company']}</div>
 					<div class="job-meta">
 						<span><span class="location-icon"></span> {job['location']}</span>
 						<span><span class="time-icon"></span> {job.get('posted_date','')}</span>
 						<span><span class="seniority-icon"></span> {job['experience']}</span>
-						</div>
+					</div>
 					<div class="job-skills">{skills_html}</div>
 					<div class="job-footer">
 						<span class="salary-range">{job['salary']}</span>
-						<div class="job-actions">
-							<button class="action-btn">Save</button>
-							<button class="action-btn">Analyze</button>
-							<button class="action-btn">Details</button>
-						</div>
+						<div class="status-dropdown-container">
+							<label class="status-label">Status:</label>
+							<div class="status-dropdown-wrapper">
+								<select class="status-dropdown" data-job-id="{job['id']}" data-current-status="{display_status}">
+									<option value="NEW" {"selected" if display_status == "NEW" else ""}>NEW</option>
+									<option value="ANALYZED" {"selected" if display_status == "ANALYZED" else ""}>ANALYZED</option>
+									<option value="MATCHED" {"selected" if display_status == "MATCHED" else ""}>MATCHED</option>
+								</select>
+							</div>
 						</div>
 					</div>
+				</div>
 				"""
 			).strip()
-			cards.append(card_html)
-		grid_html = f"<div class='jobs-grid'>{''.join(cards)}</div>"
-		st.markdown(grid_html, unsafe_allow_html=True)
+			
+			st.markdown(card_html, unsafe_allow_html=True)
+			
+			# Add JavaScript for the integrated status dropdown
+			js_code = f"""
+			<script>
+			document.addEventListener('DOMContentLoaded', function() {{
+				const statusDropdown = document.querySelector('.status-dropdown[data-job-id="{job['id']}"]');
+				if (statusDropdown) {{
+					statusDropdown.addEventListener('change', function() {{
+						const newStatus = this.value;
+						const jobId = this.getAttribute('data-job-id');
+						
+						// Update the dropdown styling based on selected status
+						this.className = 'status-dropdown status-' + newStatus.toLowerCase();
+						
+						// Show status change indicator
+						showStatusChangeIndicator(jobId, newStatus);
+					}});
+					
+					// Set initial status styling
+					const currentStatus = this.getAttribute('data-current-status');
+					this.className = 'status-dropdown status-' + currentStatus.toLowerCase();
+				}}
+			}});
+			
+			function showStatusChangeIndicator(jobId, newStatus) {{
+				// Create or update status indicator
+				let indicator = document.getElementById('status-indicator-' + jobId);
+				if (!indicator) {{
+					indicator = document.createElement('div');
+					indicator.id = 'status-indicator-' + jobId;
+					indicator.className = 'status-change-indicator';
+					indicator.innerHTML = `
+						<span class="indicator-text">Status changed to {display_status}</span>
+						<button class="update-status-btn" onclick="updateJobStatus('${{jobId}}', '${{newStatus}}')">
+							Update Status
+						</button>
+					`;
+					
+					// Insert after the job card
+					const jobCard = document.querySelector('.job-card-clean');
+					if (jobCard) {{
+						jobCard.parentNode.insertBefore(indicator, jobCard.nextSibling);
+					}}
+				}} else {{
+					indicator.querySelector('.indicator-text').textContent = `Status changed to ${{newStatus}}`;
+				}}
+			}}
+			
+			function updateJobStatus(jobId, newStatus) {{
+				// Here you would typically make an API call to update the status
+				// For now, we'll just show a success message
+				const indicator = document.getElementById('status-indicator-' + jobId);
+				if (indicator) {{
+					indicator.innerHTML = '<span class="indicator-success">✅ Status updated successfully!</span>';
+					setTimeout(() => {{
+						indicator.remove();
+					}}, 3000);
+				}}
+			}}
+			</script>
+			"""
+			st.markdown(js_code, unsafe_allow_html=True)
+			
+			# Add separator between job cards
+			st.markdown("---")
 	else:
-		# Simple HTML table to match styles
-		rows = []
-		for _, j in page_df.iterrows():
-			skills = "".join([f"<span class='table-skill'>{s}</span>" for s in j.get("skills", [])])
+		# Table view - simplified with status dropdown in table
+		st.markdown('<div class="jobs-table active"><table>', unsafe_allow_html=True)
+		
+		# Table header
+		header_html = textwrap.dedent(
+			"""
+			<thead>
+				<tr>
+					<th>Job Title</th>
+					<th>Company</th>
+					<th>Location</th>
+					<th>Seniority</th>
+					<th>Skills</th>
+					<th>Salary</th>
+					<th>Posted</th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+			"""
+		).strip()
+		st.markdown(header_html, unsafe_allow_html=True)
+		
+		# Table rows with integrated status dropdowns
+		for idx, (_, j) in enumerate(page_df.iterrows()):
+			current_status = j.get('status', 'NEW')
+			skills_html = "".join([f"<span class='table-skill'>{s}</span>" for s in j.get("skills", [])])
+			
+			# Create status badge for table view
+			status_badge_html = f'<span class="status-badge" data-status="{current_status.upper()}">{current_status.upper()}</span>'
+			
+			# Static row content with status badge
 			row_html = textwrap.dedent(
 				f"""
 				<tr>
@@ -391,46 +503,69 @@ def render_job_listings(key_prefix: str = ""):
 					<td>{j['company']}</td>
 					<td>{j['location']}</td>
 					<td>{j['experience']}</td>
-					<td><div class="table-skills">{skills}</div></td>
+					<td><div class="table-skills">{skills_html}</div></td>
 					<td>{j['salary']}</td>
 					<td>{j.get('posted_date','')}</td>
-					<td><span class="table-status">{j.get('status','')}</span></td>
-					<td>
-						<div class="table-actions">
-							<button class="table-action-btn">Analyze</button>
-							<button class="table-action-btn">View</button>
-						</div>
-					</td>
+					<td>{status_badge_html}</td>
 				</tr>
 				"""
 			).strip()
-			rows.append(row_html)
-
-		table_html = textwrap.dedent(
-			f"""
-			<div class="jobs-table active">
-				<table>
-					<thead>
-						<tr>
-							<th>Job Title</th>
-							<th>Company</th>
-							<th>Location</th>
-							<th>Seniority</th>
-							<th>Skills</th>
-							<th>Salary</th>
-							<th>Posted</th>
-							<th>Status</th>
-							<th>Actions</th>
-						</tr>
-					</thead>
-					<tbody>
-						{''.join(rows)}
-					</tbody>
-				</table>
-			</div>
-			"""
-		).strip()
-		st.markdown(table_html, unsafe_allow_html=True)
+			st.markdown(row_html, unsafe_allow_html=True)
+			
+			# Status dropdown and update button below the table row
+			col1, col2, col3, col4, col5, col6, col7, col8 = st.columns(8)
+			
+			with col7:
+				# Empty space to align with salary column
+				pass
+			
+			with col8:
+				# Status dropdown - simple 3 options
+				table_status_key = f"table_status_{j['id']}_{idx}"
+				
+				# Check if we have an updated status in session state
+				updated_jobs = st.session_state.get("updated_jobs", {})
+				table_display_status = updated_jobs.get(j['id'], current_status.upper())
+				
+				# Use callback to handle status changes
+				def _handle_table_status_change():
+					new_val = st.session_state[table_status_key]
+					if new_val != table_display_status:
+						# Update the status in backend
+						success = update_job_status(j['id'], new_val)
+						if success:
+							# Store the updated status in session state
+							if "updated_jobs" not in st.session_state:
+								st.session_state.updated_jobs = {}
+							st.session_state.updated_jobs[j['id']] = new_val
+							# Set a success flag
+							st.session_state[f"table_status_success_{j['id']}"] = new_val
+						else:
+							# Set an error flag
+							st.session_state[f"table_status_error_{j['id']}"] = True
+				
+				new_status = st.selectbox(
+					"Status",
+					options=["NEW", "ANALYZED", "MATCHED"],
+					index=["NEW", "ANALYZED", "MATCHED"].index(table_display_status) if table_display_status in ["NEW", "ANALYZED", "MATCHED"] else 0,
+					key=table_status_key,
+					label_visibility="collapsed",
+					on_change=_handle_table_status_change
+				)
+				
+				# Show status messages
+				if f"table_status_success_{j['id']}" in st.session_state:
+					success_status = st.session_state[f"table_status_success_{j['id']}"]
+					st.success(f"✅ Status updated to {success_status}!", icon="✅")
+					# Clear the success flag after showing
+					del st.session_state[f"table_status_success_{j['id']}"]
+				
+				if f"table_status_error_{j['id']}" in st.session_state:
+					st.error("❌ Failed to update status", icon="❌")
+					# Clear the error flag after showing
+					del st.session_state[f"table_status_error_{j['id']}"]
+		
+		st.markdown('</tbody></table></div>', unsafe_allow_html=True)
 
 	# Styled numeric pagination controls (HTML) at bottom
 	def _build_page_url(target_page: int) -> str:

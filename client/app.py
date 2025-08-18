@@ -10,10 +10,58 @@ from components.stats_cards import render_stats_cards
 from components.top_skills import render_top_skills
 from components.job_listings import render_job_listings
 
-from fake_data import header_data, sidebar_filters, metrics_data, top_skills, job_listings, trending_skills, hard_to_fill, recent_activity
+# Import live data that connects to backend API
+from live_data import (
+    header_data, sidebar_filters, metrics_data, top_skills, job_listings, 
+    trending_skills, hard_to_fill, recent_activity, check_api_status, refresh_live_data
+)
 
 # Page config
 st.set_page_config(page_title="RemotelyX Dashboard", page_icon="🚀", layout="wide", initial_sidebar_state="expanded")
+
+# Hide Streamlit header and style anchor tags
+st.markdown("""
+<style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stAppHeader {display: none !important;}
+    .st-emotion-cache-19xzb16 {display: none !important;}
+    .st-emotion-cache-14vh5up {display: none !important;}
+    .st-emotion-cache-1j22a0y {display: none !important;}
+    .st-emotion-cache-70qvj9 {display: none !important;}
+    .st-emotion-cache-scp8yw {display: none !important;}
+    .st-emotion-cache-1p1m4ay {display: none !important;}
+    .st-emotion-cache-czk5ss {display: none !important;}
+    .st-emotion-cache-qqkmw7 {display: none !important;}
+    .st-emotion-cache-1pbsqtx {display: none !important;}
+    
+    /* Anchor tag styling */
+    a {
+        text-decoration: none !important;
+        color: var(--brand-purple) !important;
+        transition: color 0.3s ease;
+    }
+    
+    a:hover {
+        color: var(--brand-purple-dark) !important;
+        text-decoration: none !important;
+    }
+    
+    a:visited {
+        text-decoration: none !important;
+    }
+    
+    a:active {
+        text-decoration: none !important;
+    }
+    
+    /* Ensure all links open in same page */
+    a[target="_blank"] {
+        target: _self !important;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Load CSS
 def load_css():
@@ -159,6 +207,15 @@ def main():
     col1, col2, col3 = st.columns([1, 3, 1])
     
     with col1:
+        # Show API status and refresh button
+        api_connected = check_api_status()
+        if st.sidebar.button("🔄 Refresh Data", help="Refresh data from backend API"):
+            refresh_live_data()
+            try:
+                st.rerun()  # New method
+            except AttributeError:
+                st.experimental_rerun()  # Fallback for older versions
+        
         render_sidebar()
     
     with col2:

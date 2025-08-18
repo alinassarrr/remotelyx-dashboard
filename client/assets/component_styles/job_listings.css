@@ -441,3 +441,307 @@ td.job-title-cell {
 .pagination a.page-btn:visited {
   text-decoration: none;
 }
+
+/* Clean job card styling */
+.job-card-clean {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  width: 100%;
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.job-card-clean:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px var(--shadow-color);
+  border-color: var(--brand-purple);
+}
+
+/* Job card footer with integrated status dropdown */
+.job-card-clean .job-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.job-card-clean .salary-range {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Status dropdown container inside job card */
+.status-dropdown-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-dropdown-wrapper {
+  position: relative;
+}
+
+.status-dropdown {
+  appearance: none;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  text-align: center;
+}
+
+.status-dropdown:hover {
+  border-color: var(--brand-purple);
+  background: var(--chip-bg);
+}
+
+.status-dropdown:focus {
+  outline: none;
+  border-color: var(--brand-purple);
+  box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.1);
+}
+
+/* Status-specific styling for the dropdown */
+.status-dropdown option[value="NEW"] {
+  background: rgba(102, 254, 144, 0.15);
+  color: var(--brand-green);
+}
+
+.status-dropdown option[value="ANALYZED"] {
+  background: rgba(113, 116, 255, 0.15);
+  color: var(--brand-purple);
+}
+
+.status-dropdown option[value="MATCHED"] {
+  background: rgba(102, 185, 255, 0.15);
+  color: var(--brand-blue);
+}
+
+/* Status-specific dropdown styling */
+.status-dropdown.status-new {
+  background: rgba(102, 254, 144, 0.15);
+  border-color: var(--brand-green);
+  color: var(--brand-green);
+}
+
+.status-dropdown.status-analyzed {
+  background: rgba(113, 116, 255, 0.15);
+  border-color: var(--brand-purple);
+  color: var(--brand-purple);
+}
+
+.status-dropdown.status-matched {
+  background: rgba(102, 185, 255, 0.15);
+  border-color: var(--brand-blue);
+  color: var(--brand-blue);
+}
+
+/* Hover effects for status-specific dropdowns */
+.status-dropdown.status-new:hover {
+  background: rgba(102, 254, 144, 0.25);
+  border-color: var(--brand-green);
+}
+
+.status-dropdown.status-analyzed:hover {
+  background: rgba(113, 116, 255, 0.25);
+  border-color: var(--brand-purple);
+}
+
+.status-dropdown.status-matched:hover {
+  background: rgba(102, 185, 255, 0.25);
+  border-color: var(--brand-blue);
+}
+
+/* Custom dropdown arrow */
+.status-dropdown-wrapper::after {
+  content: "▼";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8px;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.status-dropdown:focus + .status-dropdown-wrapper::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* Light mode adjustments for status dropdown */
+body.light-mode .status-dropdown,
+.stApp[data-theme="light"] .status-dropdown {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+body.light-mode .status-dropdown:hover,
+.stApp[data-theme="light"] .status-dropdown:hover {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #16a34a;
+}
+
+/* Responsive design for status dropdown */
+@media (max-width: 768px) {
+  .job-card-clean .job-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .status-dropdown-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .status-dropdown {
+    min-width: 120px;
+    flex: 1;
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .status-dropdown-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .status-dropdown {
+    width: 100%;
+    max-width: none;
+  }
+
+  .status-label {
+    font-size: 11px;
+  }
+}
+
+/* Status change indicator styling */
+.status-change-indicator {
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  animation: slideIn 0.3s ease;
+}
+
+.status-change-indicator .indicator-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.update-status-btn {
+  background: var(--brand-purple);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.update-status-btn:hover {
+  background: var(--brand-purple-dark);
+  transform: translateY(-1px);
+}
+
+.indicator-success {
+  color: var(--brand-green);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design for status indicator */
+@media (max-width: 768px) {
+  .status-change-indicator {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .update-status-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Status badges for different statuses */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+}
+
+.status-badge[data-status="NEW"] {
+  background: rgba(102, 254, 144, 0.15);
+  color: var(--brand-green);
+  border-color: var(--brand-green);
+}
+
+.status-badge[data-status="ANALYZED"] {
+  background: rgba(113, 116, 255, 0.15);
+  color: var(--brand-purple);
+  border-color: var(--brand-purple);
+}
+
+.status-badge[data-status="MATCHED"] {
+  background: rgba(102, 185, 255, 0.15);
+  color: var(--brand-blue);
+  border-color: var(--brand-blue);
+}
+
+body.light-mode .status-badge[data-status="NEW"],
+.stApp[data-theme="light"] .status-badge[data-status="NEW"] {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border-color: #22c55e;
+}

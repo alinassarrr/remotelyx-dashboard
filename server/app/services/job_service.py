@@ -1,260 +1,295 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Dict, Optional, Tuple
 from datetime import datetime, timedelta
-from app.core.database import get_collection
-from app.models.job_model import JobModel
-from app.schemas.job_schema import JobCreate, JobUpdate, JobResponse, JobFilter
+from motor.motor_asyncio import AsyncIOMotorCollection
+from app.core.database import get_collection, JOBS_COLLECTION
+from app.models.job import ScrapedJob, JobCreate, JobUpdate
 from bson import ObjectId
+import logging
+
+logger = logging.getLogger(__name__)
 
 class JobService:
-	def __init__(self, db=None):
-		if db:
-			self.collection = db["jobs"]
-		else:
-			self.collection = get_collection("jobs")
-
-	async def create_job(self, job_data: JobCreate) -> JobResponse:
-		"""Create a new job"""
-		job_dict = job_data.dict()
-		job_dict["posting_date"] = datetime.utcnow()
-		job_dict["created_at"] = datetime.utcnow()
-		job_dict["updated_at"] = datetime.utcnow()
-		
-		result = await self.collection.insert_one(job_dict)
-		job_dict["_id"] = result.inserted_id
-		
-		return JobResponse(
-			id=str(result.inserted_id),
-			title=job_dict["title"],
-			company=job_dict["company"],
-			location=job_dict["location"],
-			type=job_dict.get("type"),
-			seniority=job_dict.get("seniority"),
-			salary_min=job_dict.get("salary_min"),
-			salary_max=job_dict.get("salary_max"),
-			skills=job_dict.get("skills", []),
-			posting_date=job_dict["posting_date"],
-			status=job_dict.get("status", "new"),
-			days_to_fill=job_dict.get("days_to_fill"),
-			matched_date=job_dict.get("matched_date"),
-			created_at=job_dict["created_at"],
-			updated_at=job_dict["updated_at"]
-		)
-
-	async def get_jobs(self, filters: JobFilter, skip: int = 0, limit: int = 100, *, title_keyword: Optional[str] = None, employment_type: Optional[str] = None) -> List[JobResponse]:
-		"""Get jobs with filters"""
-		query: Dict[str, Any] = {}
-		
-		if filters.status:
-			query["status"] = filters.status
-		if filters.skills:
-			query["skills"] = {"$in": filters.skills}
-		if filters.seniority:
-			query["seniority"] = filters.seniority
-		if filters.company:
-			query["company"] = {"$regex": filters.company, "$options": "i"}
-		if filters.location:
-			query["location"] = {"$regex": filters.location, "$options": "i"}
-		if filters.type:
-			query["type"] = filters.type
-		if title_keyword:
-			query["title"] = {"$regex": title_keyword, "$options": "i"}
-		if employment_type:
-			query["employment_type"] = employment_type
-		if filters.salary_min is not None:
-			query["salary_max"] = {"$gte": filters.salary_min}
-		if filters.salary_max is not None:
-			query["salary_min"] = {"$lte": filters.salary_max}
-		if filters.date_from:
-			query["posting_date"] = {"$gte": filters.date_from}
-		if filters.date_to:
-			if "posting_date" in query:
-				query["posting_date"]["$lte"] = filters.date_to
-			else:
-				query["posting_date"] = {"$lte": filters.date_to}
-		
-		cursor = self.collection.find(query).skip(skip).limit(limit).sort("posting_date", -1)
-		jobs: List[JobResponse] = []
-		
-		async for job in cursor:
-			jobs.append(JobResponse(
-				id=str(job["_id"]),
-				title=job.get("title"),
-				company=job.get("company"),
-				location=job.get("location"),
-				type=job.get("type"),
-				seniority=job.get("seniority"),
-				salary_min=job.get("salary_min"),
-				salary_max=job.get("salary_max"),
-				skills=job.get("skills", []),
-				posting_date=job.get("posting_date"),
-				status=job.get("status", "new"),
-				days_to_fill=job.get("days_to_fill"),
-				matched_date=job.get("matched_date"),
-				created_at=job.get("created_at"),
-				updated_at=job.get("updated_at")
-			))
-		
-		return jobs
-
-	async def get_job_by_id(self, job_id: str) -> Optional[JobResponse]:
-		"""Get job by ID"""
-		try:
-			job = await self.collection.find_one({"_id": ObjectId(job_id)})
-			if not job:
-				return None
-			
-			return JobResponse(
-				id=str(job["_id"]),
-				title=job.get("title"),
-				company=job.get("company"),
-				location=job.get("location"),
-				type=job.get("type"),
-				seniority=job.get("seniority"),
-				salary_min=job.get("salary_min"),
-				salary_max=job.get("salary_max"),
-				skills=job.get("skills", []),
-				posting_date=job.get("posting_date"),
-				status=job.get("status", "new"),
-				days_to_fill=job.get("days_to_fill"),
-				matched_date=job.get("matched_date"),
-				created_at=job.get("created_at"),
-				updated_at=job.get("updated_at")
-			)
-		except:
-			return None
-
-	async def update_job(self, job_id: str, job_data: JobUpdate) -> Optional[JobResponse]:
-		"""Update job"""
-		try:
-			update_data = job_data.dict(exclude_unset=True)
-			update_data["updated_at"] = datetime.utcnow()
-			
-			result = await self.collection.update_one(
-				{"_id": ObjectId(job_id)},
-				{"$set": update_data}
-			)
-			
-			if result.modified_count == 0:
-				return None
-			
-			return await self.get_job_by_id(job_id)
-		except:
-			return None
-
-	async def delete_job(self, job_id: str) -> bool:
-		"""Delete job"""
-		try:
-			result = await self.collection.delete_one({"_id": ObjectId(job_id)})
-			return result.deleted_count > 0
-		except:
-			return False
-
-	async def get_jobs_count(self, filters: JobFilter = None) -> int:
-		"""Get total count of jobs with filters"""
-		query: Dict[str, Any] = {}
-		if filters:
-			# Apply same filters as get_jobs
-			if filters.status:
-				query["status"] = filters.status
-			if filters.skills:
-				query["skills"] = {"$in": filters.skills}
-			if filters.seniority:
-				query["seniority"] = filters.seniority
-			if filters.company:
-				query["company"] = {"$regex": filters.company, "$options": "i"}
-			if filters.location:
-				query["location"] = {"$regex": filters.location, "$options": "i"}
-			if filters.type:
-				query["type"] = filters.type
-			if filters.salary_min is not None:
-				query["salary_max"] = {"$gte": filters.salary_min}
-			if filters.salary_max is not None:
-				query["salary_min"] = {"$lte": filters.salary_max}
-			if filters.date_from:
-				query["posting_date"] = {"$gte": filters.date_from}
-			if filters.date_to:
-				if "posting_date" in query:
-					query["posting_date"]["$lte"] = filters.date_to
-				else:
-					query["posting_date"] = {"$lte": filters.date_to}
-		
-		return await self.collection.count_documents(query)
-
-	async def get_distinct_filters(self) -> Dict[str, Any]:
-		"""Return distinct values for filters needed in the frontend."""
-		companies = await self.collection.distinct("company")
-		seniorities = await self.collection.distinct("seniority")
-		types = await self.collection.distinct("type")
-		statuses = await self.collection.distinct("status")
-		employment_types = await self.collection.distinct("employment_type")
-		tech_skills = await self.collection.distinct("tech_skills")
-		
-		return {
-			"companies": sorted([c for c in companies if c]),
-			"seniority": sorted([s for s in seniorities if s]),
-			"types": sorted([t for t in types if t]),
-			"statuses": sorted([s for s in statuses if s]),
-			"employment_types": sorted([e for e in employment_types if e]),
-			"tech_skills": sorted([s for s in tech_skills if s])
-		}
-
-	async def find_duplicate_job(self, company: str, title: str, job_link: str = None) -> Optional[JobModel]:
-		"""Find duplicate job by company, title and optionally job_link"""
-		query = {
-			"company": {"$regex": f"^{company}$", "$options": "i"},
-			"title": {"$regex": f"^{title}$", "$options": "i"}
-		}
-		
-		if job_link:
-			query["job_link"] = job_link
-		
-		job = await self.collection.find_one(query)
-		if job:
-			return JobModel(**job)
-		return None
-
-	async def create_job_from_model(self, job_model: JobModel) -> JobModel:
-		"""Create a new job from JobModel"""
-		job_dict = job_model.dict(exclude={"id"})
-		result = await self.collection.insert_one(job_dict)
-		job_dict["_id"] = result.inserted_id
-		return JobModel(**job_dict)
-
-	async def update_job_from_dict(self, job_id: str, update_data: dict) -> Optional[JobModel]:
-		"""Update job with dict data (used by scraper)."""
-		try:
-			update_data["updated_at"] = datetime.utcnow()
-			result = await self.collection.update_one(
-				{"_id": ObjectId(job_id)},
-				{"$set": update_data}
-			)
-			
-			if result.modified_count == 0:
-				return None
-			
-			updated_job = await self.collection.find_one({"_id": ObjectId(job_id)})
-			if updated_job:
-				return JobModel(**updated_job)
-			return None
-		except:
-			return None
-
-	async def count_jobs(self) -> int:
-		"""Get total count of all jobs"""
-		return await self.collection.count_documents({})
-
-	async def count_jobs_with_scraped_data(self) -> int:
-		"""Count jobs that have scraped_at timestamp (i.e., came from scraper)"""
-		return await self.collection.count_documents({"scraped_at": {"$exists": True}})
-
-	async def get_recently_scraped_jobs(self, days: int = 7) -> List[JobModel]:
-		"""Get jobs scraped within the last N days"""
-		cutoff_date = datetime.utcnow() - timedelta(days=days)
-		cursor = self.collection.find({
-			"scraped_at": {"$gte": cutoff_date}
-		}).sort("scraped_at", -1)
-		
-		jobs: List[JobModel] = []
-		async for job in cursor:
-			jobs.append(JobModel(**job))
-		return jobs 
+    def __init__(self):
+        self.collection: AsyncIOMotorCollection = get_collection(JOBS_COLLECTION)
+    
+    async def create_job(self, job: JobCreate) -> ScrapedJob:
+        """Create a new job posting."""
+        try:
+            job_dict = job.dict(by_alias=True)
+            job_dict["created_at"] = datetime.utcnow()
+            job_dict["updated_at"] = datetime.utcnow()
+            
+            result = await self.collection.insert_one(job_dict)
+            job_dict["_id"] = result.inserted_id
+            
+            return ScrapedJob(**job_dict)
+        except Exception as e:
+            logger.error(f"Error creating job: {e}")
+            raise e
+    
+    async def get_job_by_id(self, job_id: str) -> Optional[ScrapedJob]:
+        """Get a job by its ID."""
+        try:
+            if not ObjectId.is_valid(job_id):
+                return None
+            
+            job_dict = await self.collection.find_one({"_id": ObjectId(job_id)})
+            if job_dict:
+                return ScrapedJob(**job_dict)
+            return None
+        except Exception as e:
+            logger.error(f"Error getting job by ID: {e}")
+            raise e
+    
+    async def get_jobs(
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        search: Optional[str] = None,
+        company: Optional[str] = None,
+        location: Optional[str] = None,
+        seniority: Optional[str] = None,
+        employment_type: Optional[str] = None,
+        skills: Optional[List[str]] = None,
+        date_from: Optional[datetime] = None,
+        date_to: Optional[datetime] = None,
+        sort_by: str = "created_at",
+        sort_order: int = -1
+    ) -> Tuple[List[ScrapedJob], int]:
+        """Get jobs with filtering, search, and pagination."""
+        try:
+            # Build filter query
+            filter_query = {}
+            
+            if company:
+                filter_query["data.company"] = {"$regex": company, "$options": "i"}
+            
+            if location:
+                filter_query["data.location"] = {"$regex": location, "$options": "i"}
+            
+            if seniority:
+                filter_query["data.seniority"] = {"$regex": seniority, "$options": "i"}
+            
+            if employment_type:
+                filter_query["data.employment_type"] = {"$regex": employment_type, "$options": "i"}
+            
+            if skills:
+                filter_query["$or"] = [
+                    {"data.tech_skills": {"$in": skills}},
+                    {"data.soft_skills": {"$in": skills}}
+                ]
+            
+            if date_from or date_to:
+                date_filter = {}
+                if date_from:
+                    date_filter["$gte"] = date_from
+                if date_to:
+                    date_filter["$lte"] = date_to
+                filter_query["created_at"] = date_filter
+            
+            # Text search across multiple fields
+            if search:
+                filter_query["$text"] = {"$search": search}
+            
+            # Get total count
+            total_count = await self.collection.count_documents(filter_query)
+            
+            # Build sort query
+            sort_query = [(sort_by, sort_order)]
+            
+            # Execute query with pagination
+            cursor = self.collection.find(filter_query).sort(sort_query).skip(skip).limit(limit)
+            jobs = []
+            
+            async for job_dict in cursor:
+                jobs.append(ScrapedJob(**job_dict))
+            
+            return jobs, total_count
+            
+        except Exception as e:
+            logger.error(f"Error getting jobs: {e}")
+            raise e
+    
+    async def update_job(self, job_id: str, job_update: JobUpdate) -> Optional[ScrapedJob]:
+        """Update an existing job."""
+        try:
+            if not ObjectId.is_valid(job_id):
+                return None
+            
+            update_data = job_update.dict(exclude_unset=True)
+            update_data["updated_at"] = datetime.utcnow()
+            
+            result = await self.collection.update_one(
+                {"_id": ObjectId(job_id)},
+                {"$set": update_data}
+            )
+            
+            if result.modified_count > 0:
+                return await self.get_job_by_id(job_id)
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error updating job: {e}")
+            raise e
+    
+    async def update_job_status(self, job_id: str, new_status: str) -> Optional[ScrapedJob]:
+        """Update only the status of a job."""
+        try:
+            if not ObjectId.is_valid(job_id):
+                return None
+            
+            # Update the status in the job data
+            result = await self.collection.update_one(
+                {"_id": ObjectId(job_id)},
+                {
+                    "$set": {
+                        "data.status": new_status,
+                        "updated_at": datetime.utcnow()
+                    }
+                }
+            )
+            
+            if result.modified_count > 0:
+                return await self.get_job_by_id(job_id)
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error updating job status: {e}")
+            raise e
+    
+    async def update_job_status(self, job_id: str, status: str) -> bool:
+        """Update job status (NEW, ANALYZED, MATCHED)."""
+        try:
+            if not ObjectId.is_valid(job_id):
+                return False
+            
+            # Validate status
+            if status not in ["NEW", "ANALYZED", "MATCHED"]:
+                raise ValueError(f"Invalid status: {status}")
+            
+            update_data = {
+                "status": status,
+                "updated_at": datetime.utcnow()
+            }
+            
+            result = await self.collection.update_one(
+                {"_id": ObjectId(job_id)},
+                {"$set": update_data}
+            )
+            
+            return result.modified_count > 0
+            
+        except Exception as e:
+            logger.error(f"Error updating job status: {e}")
+            raise e
+    
+    async def delete_job(self, job_id: str) -> bool:
+        """Delete a job by ID."""
+        try:
+            if not ObjectId.is_valid(job_id):
+                return False
+            
+            result = await self.collection.delete_one({"_id": ObjectId(job_id)})
+            return result.deleted_count > 0
+            
+        except Exception as e:
+            logger.error(f"Error deleting job: {e}")
+            raise e
+    
+    async def get_jobs_by_company(self, company: str, limit: int = 50) -> List[ScrapedJob]:
+        """Get all jobs from a specific company."""
+        try:
+            cursor = self.collection.find(
+                {"data.company": {"$regex": company, "$options": "i"}}
+            ).sort("created_at", -1).limit(limit)
+            
+            jobs = []
+            async for job_dict in cursor:
+                jobs.append(ScrapedJob(**job_dict))
+            
+            return jobs
+            
+        except Exception as e:
+            logger.error(f"Error getting jobs by company: {e}")
+            raise e
+    
+    async def get_recent_jobs(self, days: int = 7, limit: int = 50) -> List[ScrapedJob]:
+        """Get recent jobs from the last N days."""
+        try:
+            date_from = datetime.utcnow() - timedelta(days=days)
+            
+            cursor = self.collection.find(
+                {"created_at": {"$gte": date_from}}
+            ).sort("created_at", -1).limit(limit)
+            
+            jobs = []
+            async for job_dict in cursor:
+                jobs.append(ScrapedJob(**job_dict))
+            
+            return jobs
+            
+        except Exception as e:
+            logger.error(f"Error getting recent jobs: {e}")
+            raise e
+    
+    async def get_job_stats(self) -> Dict:
+        """Get basic job statistics."""
+        try:
+            total_jobs = await self.collection.count_documents({})
+            
+            # Jobs created this week
+            week_ago = datetime.utcnow() - timedelta(days=7)
+            new_this_week = await self.collection.count_documents({
+                "created_at": {"$gte": week_ago}
+            })
+            
+            # Unique companies
+            pipeline = [
+                {"$group": {"_id": "$data.company"}},
+                {"$count": "total"}
+            ]
+            company_result = await self.collection.aggregate(pipeline).to_list(1)
+            unique_companies = company_result[0]["total"] if company_result else 0
+            
+            # Employment type distribution
+            pipeline = [
+                {"$group": {"_id": "$data.employment_type", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}}
+            ]
+            employment_types = await self.collection.aggregate(pipeline).to_list(None)
+            
+            # Seniority distribution
+            pipeline = [
+                {"$group": {"_id": "$data.seniority", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}}
+            ]
+            seniority_dist = await self.collection.aggregate(pipeline).to_list(None)
+            
+            return {
+                "total_jobs": total_jobs,
+                "new_this_week": new_this_week,
+                "unique_companies": unique_companies,
+                "employment_types": employment_types,
+                "seniority_distribution": seniority_dist
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting job stats: {e}")
+            raise e
+    
+    async def bulk_create_jobs(self, jobs: List[JobCreate]) -> List[str]:
+        """Create multiple jobs at once."""
+        try:
+            job_dicts = []
+            for job in jobs:
+                job_dict = job.dict(by_alias=True)
+                job_dict["created_at"] = datetime.utcnow()
+                job_dict["updated_at"] = datetime.utcnow()
+                job_dicts.append(job_dict)
+            
+            result = await self.collection.insert_many(job_dicts)
+            return [str(id) for id in result.inserted_ids]
+            
+        except Exception as e:
+            logger.error(f"Error bulk creating jobs: {e}")
+            raise e 

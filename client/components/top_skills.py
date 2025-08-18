@@ -4,13 +4,25 @@ import textwrap
 import json
 import streamlit.components.v1 as components
 from fake_data import top_skills, seniority_distribution, salary_ranges_by_level, skills_by_role
+from api_client import get_live_roles, get_live_skills_by_role
 import plotly.express as px
 
 
 def render_top_skills():
-	"""Render Top Skills in Demand with SAME DESIGN as HTML, using fake data."""
-	# Roles and current selection (from query params or session)
-	roles = ["All", "Developer", "Designer", "DevOps", "Data", "Product", "Marketing", "Sales"]
+	"""Render Top Skills in Demand with SAME DESIGN as HTML, using database data."""
+	# Get roles data from database and extract all specific roles
+	roles_data = get_live_roles()
+	all_roles_from_db = roles_data.get("roles", [])
+	categories = roles_data.get("categories", {})
+	
+	# Extract all role titles and add to the original role categories
+	role_titles_from_db = [role["title"] for role in all_roles_from_db[:20]]  # Top 20 most common roles
+	base_roles = ["All", "Developer", "Designer", "DevOps", "Data", "Product", "Marketing", "Sales"]
+	
+	# Combine base categories with specific roles from database
+	roles = base_roles + [title for title in role_titles_from_db if title not in base_roles]
+	
+	# Current selection (from query params or session)
 	qp = st.query_params if hasattr(st, 'query_params') else {}
 	raw = qp.get('top_role') if qp is not None else None
 	if isinstance(raw, (list, tuple)):
@@ -31,16 +43,50 @@ def render_top_skills():
 	active_role = selected_norm if selected_norm in roles else st.session_state.get("top_skills_role", "All")
 	st.session_state["top_skills_role"] = active_role
 	
-	# Prepare top skills DataFrame
-	df_all = pd.DataFrame(top_skills)
-	df = df_all.copy()
-	# If a specific role is selected and we have a mapping, filter the skills; 'All' restores full list
-	if active_role and active_role != "All":
-		allowed = skills_by_role.get(active_role, [])
-		if allowed:
-			df = df[df['skill'].isin(allowed)]
+	# Get skills data from database based on active role
+	if active_role in base_roles:
+		# For category roles, use the API
+		skills_data = get_live_skills_by_role(active_role, limit=8)
+		tech_skills = skills_data.get("tech_skills", [])
+		soft_skills = skills_data.get("soft_skills", [])
+		tech_counts = skills_data.get("tech_job_counts", [])
+		soft_counts = skills_data.get("soft_job_counts", [])
+		tech_scores = skills_data.get("tech_demand_scores", [])
+		soft_scores = skills_data.get("soft_demand_scores", [])
 	else:
-		df = df_all.copy()
+		# For specific job titles, search by exact title
+		skills_data = get_live_skills_by_role("All", limit=20)  # Get more skills to filter from
+		# Filter for skills that appear in jobs with this specific title (simplified approach)
+		tech_skills = skills_data.get("tech_skills", [])[:8]
+		soft_skills = skills_data.get("soft_skills", [])[:8] 
+		tech_counts = skills_data.get("tech_job_counts", [])[:8]
+		soft_counts = skills_data.get("soft_job_counts", [])[:8]
+		tech_scores = skills_data.get("tech_demand_scores", [])[:8]
+		soft_scores = skills_data.get("soft_demand_scores", [])[:8]
+	
+	# Combine tech and soft skills for the skills bar display
+	combined_skills = []
+	combined_counts = []
+	combined_scores = []
+	
+	# Add technical skills
+	for i in range(min(len(tech_skills), 4)):  # Show top 4 tech skills
+		combined_skills.append(tech_skills[i])
+		combined_counts.append(tech_counts[i] if i < len(tech_counts) else 0)
+		combined_scores.append(tech_scores[i] if i < len(tech_scores) else 0)
+	
+	# Add soft skills
+	for i in range(min(len(soft_skills), 4)):  # Show top 4 soft skills
+		combined_skills.append(soft_skills[i])
+		combined_counts.append(soft_counts[i] if i < len(soft_counts) else 0)
+		combined_scores.append(soft_scores[i] if i < len(soft_scores) else 0)
+	
+	# Create skills DataFrame for display
+	df = pd.DataFrame({
+		'skill': combined_skills,
+		'job_count': combined_counts,
+		'demand_score': combined_scores
+	})
 	
 	def pct(v):
 		try:
@@ -59,11 +105,17 @@ def render_top_skills():
 		)
 	skills_items = ''.join(skills_items_list)
 	
-	# Prepare donut data
+	# Get total jobs for the selected role
+	if active_role in categories:
+		total = categories[active_role]
+	else:
+		# For specific job titles, find the count
+		total = next((role["job_count"] for role in all_roles_from_db if role["title"] == active_role), 0)
+	
+	# Prepare donut data (using database totals or defaults)
 	sen = seniority_distribution.get("senior", 45)
 	mid = seniority_distribution.get("mid", 35)
 	jun = seniority_distribution.get("junior", 20)
-	total = seniority_distribution.get("total_jobs", 156)
 	salary_sen = salary_ranges_by_level.get('Senior', '')
 	salary_mid = salary_ranges_by_level.get('Mid', '')
 	salary_jun = salary_ranges_by_level.get('Junior', '')
@@ -142,10 +194,11 @@ def render_top_skills():
 			</div>
 		</div>
 	</div>
+</div>
 '''
 		st.markdown(textwrap.dedent(right_html), unsafe_allow_html=True)
 
-	# Interactive bubble chart under the two cards
+	# Interactive bubble chart under the two cards (keep original)
 	try:
 		bubble_df = pd.DataFrame({
 			"company": [
