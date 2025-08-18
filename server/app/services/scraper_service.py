@@ -196,33 +196,58 @@ class JobScraperService:
         return None
     
     async def _scrape_with_nodejs(self, url: str) -> Optional[Dict[str, Any]]:
-        """Use Node.js scraper for gamma.app URLs via HTTP call to host"""
+        """Use Node.js scraper for gamma.app URLs via HTTP call to host - working version like yesterday"""
         try:
             import httpx
             
             logger.info(f"Calling Node.js scraper server for URL: {url}")
             
-            # Call the local Node.js scraper server
-            async with httpx.AsyncClient(timeout=120.0) as client:
-                response = await client.post(
-                    "http://host.docker.internal:3001/scrape",
-                    json={"url": url}
-                )
+            # Try to connect to the simple Node.js HTTP server on the host
+            host_urls = [
+                "http://host.docker.internal:3001/scrape",
+                "http://172.17.0.1:3001/scrape", 
+                "http://localhost:3001/scrape"
+            ]
+            
+            async with httpx.AsyncClient(timeout=150.0) as client:
+                response = None
+                last_error = None
+                
+                for host_url in host_urls:
+                    try:
+                        logger.info(f"Trying to connect to Node.js server at: {host_url}")
+                        response = await client.post(
+                            host_url,
+                            json={"job_url": url}
+                        )
+                        logger.info(f"Successfully connected to {host_url}")
+                        break
+                    except Exception as e:
+                        logger.warning(f"Failed to connect to {host_url}: {e}")
+                        last_error = e
+                        continue
+                
+                if response is None:
+                    logger.error(f"Failed to connect to any Node.js server. Last error: {last_error}")
+                    return None
                 
                 if response.status_code != 200:
                     logger.error(f"Node.js scraper server returned status {response.status_code}")
+                    logger.error(f"Response: {response.text}")
                     return None
                 
                 result_data = response.json()
                 
                 if not result_data.get("success"):
-                    logger.error(f"Node.js scraper error: {result_data.get('error')}")
+                    logger.warning(f"Node.js scraper error: {result_data.get('error')}")
                     return None
                 
                 scraped_data = result_data.get("data")
                 if not scraped_data:
                     logger.error("No data returned from Node.js scraper")
                     return None
+                
+                logger.info(f"Node.js scraper returned {len(scraped_data.get('content', []))} content items")
                 
                 # Extract job data from the scraped content
                 return await self._extract_job_from_nodejs_data(scraped_data, url)

@@ -16,8 +16,18 @@ async function scrapeGamma(url) {
   const page = await browser.newPage();
 
   try {
-    await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
-    await page.waitForSelector("h1, [data-card-id]", { timeout: 60000 });
+    console.log(`Starting to scrape: ${url}`);
+    await page.goto(url, { waitUntil: "networkidle0", timeout: 90000 });
+    console.log("Page loaded, waiting for content...");
+
+    // Wait for content with a shorter timeout
+    try {
+      await page.waitForSelector("h1, [data-card-id], body", {
+        timeout: 30000,
+      });
+    } catch (selectorTimeout) {
+      console.log("Selector timeout, proceeding with available content");
+    }
 
     const data = await page.evaluate(() => {
       const content = [];
@@ -51,8 +61,10 @@ async function scrapeGamma(url) {
       };
     });
 
+    console.log(`Successfully scraped ${data.content.length} content items`);
     return { success: true, data };
   } catch (err) {
+    console.error(`Scraping error for ${url}:`, err.message);
     return { success: false, error: err.message };
   } finally {
     await browser.close();
