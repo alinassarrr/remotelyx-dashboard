@@ -131,12 +131,19 @@ def _apply_sidebar_filters(df: pd.DataFrame) -> pd.DataFrame:
 	except Exception:
 		pass
 
-	# Salary range contains (best-effort)
+	# Employment Type filter
 	try:
-		salary_sel = filters.get("salary_range")
-		if salary_sel and isinstance(salary_sel, str) and salary_sel.lower() != "all ranges":
-			token = salary_sel.replace(" ", "").lower()
-			working = working[working["salary"].str.replace(" ", "").str.lower().str.contains(token.split("-")[0].replace("+", ""))]
+		employment_sel = filters.get("employment_type")
+		if employment_sel and employment_sel != "All Types":
+			working = working[working["type"].str.contains(employment_sel, case=False, na=False)]
+	except Exception:
+		pass
+
+	# Location filter (search in location field)
+	try:
+		location_q = (filters.get("location_query") or "").strip().lower()
+		if location_q:
+			working = working[working["location"].str.lower().str.contains(location_q, na=False)]
 	except Exception:
 		pass
 		
@@ -182,7 +189,7 @@ def render_job_listings(key_prefix: str = ""):
 	Includes header, search, view toggle, sort, pagination, and cards/table rendering.
 	"""
 	# Get live jobs data from API
-	live_jobs = get_job_listings(limit=100)  # Get more jobs for better pagination
+	live_jobs = get_job_listings(limit=1000)  # Get all jobs for proper filtering and pagination
 	if not live_jobs:
 		# Fallback message if no API data
 		st.warning("🔌 Backend API not available. Please check the connection.")
@@ -463,6 +470,7 @@ def render_job_listings(key_prefix: str = ""):
 			
 			# Add separator between job cards
 			st.markdown("---")
+	
 	else:
 		# Table view - simplified with status dropdown in table
 		st.markdown('<div class="jobs-table active"><table>', unsafe_allow_html=True)
@@ -608,4 +616,3 @@ def render_job_listings(key_prefix: str = ""):
 		"""
 	).strip()
 	st.markdown(pagination_html, unsafe_allow_html=True)
-

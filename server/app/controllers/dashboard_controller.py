@@ -314,9 +314,12 @@ async def get_all_roles(
                     "job_count": role_doc["job_count"]
                 })
         
+        # Calculate total jobs count for "All" category
+        total_jobs = sum(role["job_count"] for role in roles)
+        
         # Create role categories based on common patterns
         role_categories = {
-            "All": len(roles),
+            "All": total_jobs,
             "Developer": 0,
             "Designer": 0, 
             "Data": 0,
