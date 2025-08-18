@@ -1,0 +1,572 @@
+:root {
+  --bg-primary: #111417;
+  --bg-secondary: #1c2127;
+  --bg-card: #1c2127;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --border-color: rgba(102, 254, 144, 0.2);
+  --border-hover: rgba(102, 254, 144, 0.4);
+  --input-bg: rgba(113, 116, 255, 0.1);
+  --input-border: rgba(113, 116, 255, 0.3);
+  --chip-bg: rgba(113, 116, 255, 0.1);
+  --chip-border: rgba(113, 116, 255, 0.3);
+  --brand-purple: #7174ff;
+  --brand-blue: #66b9ff;
+  --brand-green: #66fe90;
+  --brand-red: #ff2e00;
+  --brand-purple-dark: #47499e;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+:root {
+  /* Dark mode default */
+  --bg-primary: #111417;
+  --bg-secondary: #1c2127;
+  --bg-card: #1c2127;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --border-color: rgba(102, 254, 144, 0.2);
+  --border-hover: rgba(102, 254, 144, 0.4);
+  --input-bg: rgba(113, 116, 255, 0.1);
+  --input-border: rgba(113, 116, 255, 0.3);
+  --chip-bg: rgba(113, 116, 255, 0.1);
+  --chip-border: rgba(113, 116, 255, 0.3);
+  --skill-bar-bg: rgba(113, 116, 255, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+
+  /* Brand colors */
+  --brand-purple: #7174ff;
+  --brand-blue: #66b9ff;
+  --brand-green: #66fe90;
+  --brand-red: #ff2e00;
+  --brand-purple-dark: #47499e;
+
+  /* Additional variables for components */
+  --primary-color: var(--brand-purple);
+  --secondary-color: var(--brand-blue);
+  --success-color: var(--brand-green);
+  --warning-color: var(--brand-red);
+  --info-color: var(--brand-blue);
+  --light-color: var(--bg-secondary);
+  --dark-color: var(--text-primary);
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-xxl: 24px;
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+  --shadow-sm: 0 2px 4px var(--shadow-color);
+  --shadow-md: 0 4px 8px var(--shadow-color);
+  --shadow-lg: 0 8px 16px var(--shadow-color);
+}
+
+body.light-mode {
+  --bg-primary: #f5f7fa;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --text-primary: #1c2127;
+  --text-secondary: rgba(28, 33, 39, 0.7);
+  --text-muted: rgba(28, 33, 39, 0.5);
+  --border-color: #e2e8f0;
+  --border-hover: #cbd5e0;
+  --input-bg: #f7fafc;
+  --input-border: #e2e8f0;
+  --chip-bg: #f7fafc;
+  --chip-border: #e2e8f0;
+  --skill-bar-bg: #f0f4f8;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+
+  /* Additional variables for components */
+  --primary-color: var(--brand-purple);
+  --secondary-color: var(--brand-blue);
+  --success-color: var(--brand-green);
+  --warning-color: var(--brand-red);
+  --info-color: var(--brand-blue);
+  --light-color: var(--bg-secondary);
+  --dark-color: var(--text-primary);
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-xxl: 24px;
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+  --shadow-sm: 0 2px 4px var(--shadow-color);
+  --shadow-md: 0 4px 8px var(--shadow-color);
+  --shadow-lg: 0 8px 16px var(--shadow-color);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1001;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-md);
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Theme-specific body classes */
+body.theme-light {
+  --bg-primary: #f5f7fa;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --text-primary: #1c2127;
+  --text-secondary: rgba(28, 33, 39, 0.7);
+  --text-muted: rgba(28, 33, 39, 0.5);
+  --border-color: #e2e8f0;
+  --border-hover: #cbd5e0;
+  --input-bg: #f7fafc;
+  --input-border: #e2e8f0;
+  --chip-bg: #f7fafc;
+  --chip-border: #e2e8f0;
+  --skill-bar-bg: #f0f4f8;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body.theme-dark {
+  --bg-primary: #111417;
+  --bg-secondary: #1c2127;
+  --bg-card: #1c2127;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --border-color: rgba(102, 254, 144, 0.2);
+  --border-hover: rgba(102, 254, 144, 0.4);
+  --input-bg: rgba(113, 116, 255, 0.1);
+  --input-border: rgba(113, 116, 255, 0.3);
+  --chip-bg: rgba(113, 116, 255, 0.1);
+  --chip-border: rgba(113, 116, 255, 0.3);
+  --skill-bar-bg: rgba(113, 116, 255, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Streamlit-specific theme overrides */
+.stApp[data-theme="light"] {
+  --bg-primary: #f5f7fa;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --text-primary: #1c2127;
+  --text-secondary: rgba(28, 33, 39, 0.7);
+  --text-muted: rgba(28, 33, 39, 0.5);
+  --border-color: #e2e8f0;
+  --border-hover: #cbd5e0;
+  --input-bg: #f7fafc;
+  --input-border: #e2e8f0;
+  --chip-bg: #f7fafc;
+  --chip-border: #e2e8f0;
+  --skill-bar-bg: #f0f4f8;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+.stApp[data-theme="dark"] {
+  --bg-primary: #111417;
+  --bg-secondary: #1c2127;
+  --bg-card: #1c2127;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --border-color: rgba(102, 254, 144, 0.2);
+  --border-hover: rgba(102, 254, 144, 0.4);
+  --input-bg: rgba(113, 116, 255, 0.1);
+  --input-border: rgba(113, 116, 255, 0.3);
+  --chip-bg: rgba(113, 116, 255, 0.1);
+  --chip-border: rgba(113, 116, 255, 0.3);
+  --skill-bar-bg: rgba(113, 116, 255, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Additional theme-aware component styles */
+.stats-card {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Global dropdown (BaseWeb) menus across the app */
+[data-baseweb="menu"],
+[role="listbox"] {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  max-height: 280px !important;
+  width: 100% !important;
+  overflow: auto !important;
+}
+[data-baseweb="menu"] :hover {
+  background: var(--bg-secondary) !important;
+}
+[data-baseweb="menu"] > div {
+  background: var(--bg-secondary) !important;
+}
+[role="option"] {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border: none !important;
+}
+[role="option"]:hover {
+  background: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border: none !important;
+}
+[role="option"][aria-selected="true"] {
+  background: var(--chip-bg) !important;
+  border: none !important;
+}
+
+/* Comprehensive input and dropdown styling for both themes */
+[data-testid="stTextInput"] > div,
+[data-testid="stSelectbox"] > div,
+[data-testid="stMultiSelect"] > div,
+[data-testid="stNumberInput"] > div,
+[data-testid="stDateInput"] > div {
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  border-radius: var(--border-radius) !important;
+  color: var(--text-primary) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Input focus states */
+[data-testid="stTextInput"] > div:focus-within,
+[data-testid="stSelectbox"] > div:focus-within,
+[data-testid="stMultiSelect"] > div:focus-within,
+[data-testid="stNumberInput"] > div:focus-within,
+[data-testid="stDateInput"] > div:focus-within {
+  border-color: var(--brand-purple) !important;
+  box-shadow: 0 0 0 2px rgba(113, 116, 255, 0.1) !important;
+  background: var(--bg-card) !important;
+}
+
+/* Input text styling */
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input,
+[data-testid="stDateInput"] input {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  font-size: var(--font-size-base) !important;
+  border: none !important;
+  outline: none !important;
+  padding: 8px 12px !important;
+}
+
+/* Selectbox specific styling */
+[data-testid="stSelectbox"] [data-baseweb="select"] {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border: none !important;
+  font-size: var(--font-size-base) !important;
+  padding: 8px 12px !important;
+}
+
+/* MultiSelect specific styling */
+[data-testid="stMultiSelect"] [data-baseweb="select"] {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border: none !important;
+  font-size: var(--font-size-base) !important;
+  padding: 8px 12px !important;
+}
+
+/* MultiSelect tags */
+[data-testid="stMultiSelect"] [data-baseweb="tag"] {
+  background: var(--chip-bg) !important;
+  border: 1px solid var(--chip-border) !important;
+  color: var(--text-primary) !important;
+  border-radius: 16px !important;
+  padding: 4px 8px !important;
+  margin: 2px !important;
+  font-size: 12px !important;
+}
+
+/* Dropdown arrow styling */
+[data-testid="stSelectbox"] svg,
+[data-testid="stMultiSelect"] svg {
+  color: var(--text-secondary) !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Placeholder text styling */
+[data-testid="stTextInput"] input::placeholder,
+[data-testid="stNumberInput"] input::placeholder,
+[data-testid="stDateInput"] input::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.7 !important;
+}
+
+/* Label styling */
+[data-testid="stTextInput"] label,
+[data-testid="stSelectbox"] label,
+[data-testid="stMultiSelect"] label,
+[data-testid="stNumberInput"] label,
+[data-testid="stDateInput"] label {
+  color: var(--text-primary) !important;
+  font-weight: 500 !important;
+  font-size: var(--font-size-base) !important;
+  margin-bottom: 4px !important;
+}
+
+/* Light mode specific adjustments */
+body.light-mode [data-testid="stTextInput"] > div,
+body.light-mode [data-testid="stSelectbox"] > div,
+body.light-mode [data-testid="stMultiSelect"] > div,
+body.light-mode [data-testid="stNumberInput"] > div,
+body.light-mode [data-testid="stDateInput"] > div {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.light-mode [data-testid="stTextInput"] > div:focus-within,
+body.light-mode [data-testid="stSelectbox"] > div:focus-within,
+body.light-mode [data-testid="stMultiSelect"] > div:focus-within,
+body.light-mode [data-testid="stNumberInput"] > div:focus-within,
+body.light-mode [data-testid="stDateInput"] > div:focus-within {
+  border-color: var(--brand-purple) !important;
+  box-shadow: 0 0 0 2px rgba(113, 116, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.light-mode [data-testid="stTextInput"] input,
+body.light-mode [data-testid="stNumberInput"] input,
+body.light-mode [data-testid="stDateInput"] input {
+  color: #1c2127 !important;
+}
+
+body.light-mode [data-testid="stSelectbox"] [data-baseweb="select"],
+body.light-mode [data-testid="stMultiSelect"] [data-baseweb="select"] {
+  color: #1c2127 !important;
+}
+
+body.light-mode [data-testid="stMultiSelect"] [data-baseweb="tag"] {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e0 !important;
+  color: #1c2127 !important;
+}
+
+/* Dark mode specific adjustments */
+body.dark-mode [data-testid="stTextInput"] > div,
+body.dark-mode [data-testid="stSelectbox"] > div,
+body.dark-mode [data-testid="stMultiSelect"] > div,
+body.dark-mode [data-testid="stNumberInput"] > div,
+body.dark-mode [data-testid="stDateInput"] > div {
+  background: rgba(113, 116, 255, 0.1) !important;
+  border: 1px solid rgba(113, 116, 255, 0.3) !important;
+}
+
+body.dark-mode [data-testid="stTextInput"] > div:focus-within,
+body.dark-mode [data-testid="stSelectbox"] > div:focus-within,
+body.dark-mode [data-testid="stMultiSelect"] > div:focus-within,
+body.dark-mode [data-testid="stNumberInput"] > div:focus-within,
+body.dark-mode [data-testid="stDateInput"] > div:focus-within {
+  background: rgba(113, 116, 255, 0.15) !important;
+  border-color: var(--brand-purple) !important;
+  box-shadow: 0 0 0 2px rgba(113, 116, 255, 0.2) !important;
+}
+
+.navbar {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    #1565c0 100%
+  ) !important;
+}
+
+.sidebar .sidebar-content {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+.right-panel {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Smooth theme transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Additional Streamlit overrides for better theme visibility */
+.stApp {
+  background-color: var(--bg-primary) !important;
+}
+
+.main .block-container {
+  background-color: var(--bg-primary) !important;
+}
+
+/* Force theme colors on common elements */
+.stMarkdown,
+.stText,
+.stMetric,
+.stSubheader,
+.stCaption {
+  color: var(--text-primary) !important;
+}
+
+/* Keep sidebar always open and visible */
+.stApp [data-testid="stSidebar"] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+  pointer-events: auto !important;
+}
+/* Hide the sidebar collapse control */
+.stApp [data-testid="collapsedControl"],
+.stApp [data-testid="stSidebarCollapseButton"] {
+  display: none !important;
+}
+
+/* Theme toggle visibility */
+div[data-testid="stVerticalBlock"] > div:first-child {
+  background-color: var(--bg-primary) !important;
+}
+
+/* Remove forced link color within specific Streamlit container */
+.st-emotion-cache-r44huj a,
+.st-emotion-cache-r44huj a:hover,
+.st-emotion-cache-r44huj a:focus,
+.st-emotion-cache-r44huj a:visited {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+/* Clear background for Streamlit container class */
+.st-bb {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Ensure text color follows theme for specific Streamlit class */
+.st-b6 {
+  color: var(--text-primary) !important;
+}
+
+/* Fix BaseWeb focus ring edge colors to match theme hover border */
+.st-f5 {
+  border-bottom-color: var(--border-hover) !important;
+}
+.st-f4 {
+  border-top-color: var(--border-hover) !important;
+}
+.st-f3 {
+  border-right-color: var(--border-hover) !important;
+}
+.st-f2 {
+  border-left-color: var(--border-hover) !important;
+}
+
+/* Remove red edge borders by using theme hover color */
+.st-fh {
+  border-bottom-color: var(--border-hover) !important;
+}
+.st-fg {
+  border-top-color: var(--border-hover) !important;
+}
+.st-ff {
+  border-right-color: var(--border-hover) !important;
+}
+.st-fe {
+  border-left-color: var(--border-hover) !important;
+}
+
+/* Dark theme: make input/textarea placeholders white */
+.stApp[data-theme="dark"] input::placeholder,
+.stApp[data-theme="dark"] textarea::placeholder {
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+}
+
+/* Override specific Streamlit container background */
+.st-f7 {
+  background: var(--input-bg) !important;
+  background-color: var(--input-bg) !important;
+}
+
+/* Remove unwanted background */
+.st-ec {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Match job listing search input background */
+.st-e8 {
+  background: var(--input-bg) !important;
+  background-color: var(--input-bg) !important;
+}
+
+/* Search input borders */
+.st-e7 {
+  border-bottom-color: var(--border-color) !important;
+}
+.st-e6 {
+  border-top-color: var(--border-color) !important;
+}
+.st-e5 {
+  border-right-color: var(--border-color) !important;
+}
+.st-e4 {
+  border-left-color: var(--border-color) !important;
+}
+
+/* Ensure placeholders use theme primary color across the app */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
+}
+
+/* Hide specific Streamlit container */
+.st-emotion-cache-14vh5up {
+  display: none !important;
+}
+
+/* Hide another Streamlit container as requested */
+.st-emotion-cache-1ffuo7c {
+  display: none !important;
+}
+
+/* Ensure h3 text uses theme primary color */
+.st-emotion-cache-r44huj h3 {
+  color: var(--text-primary) !important;
+}
+
+/* Adjust container width as requested */
+.st-emotion-cache-1vo6xi6 {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  min-width: 1rem !important;
+  position: relative !important;
+  overflow: visible !important;
+}

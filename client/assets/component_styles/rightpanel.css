@@ -1,0 +1,160 @@
+/* Right Panel (Streamlit) - aligned with HTML design */
+.right-panel {
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  box-sizing: border-box;
+}
+
+.insights-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--input-bg);
+  border-radius: 8px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+/* Streamlit tabs won't use this, but keeping for parity */
+.insight-tab {
+  flex: 1;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--border-hover);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.insight-tab.active {
+  background: var(--brand-purple);
+  color: #000000;
+  font-weight: 600;
+}
+
+.insights-content,
+.right-panel .stTabs {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.insights-content::-webkit-scrollbar {
+  width: 4px;
+}
+.insights-content::-webkit-scrollbar-track {
+  background: var(--input-bg);
+  border-radius: 2px;
+}
+.insights-content::-webkit-scrollbar-thumb {
+  background: var(--brand-purple);
+  border-radius: 2px;
+}
+
+.insights-section {
+  margin-bottom: 16px;
+}
+
+.insights-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trending-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 10px;
+  margin-bottom: 19px;
+  transition: all 0.3s ease;
+}
+
+.trending-item:hover {
+  transform: translateX(4px);
+  border-color: var(--brand-purple);
+}
+
+.trending-skill {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.trending-change {
+  font-size: 12px;
+  color: var(--brand-green);
+  font-weight: 600;
+}
+.trending-change.negative {
+  color: var(--brand-red);
+}
+
+.activity-item {
+  padding: 14px;
+  border-left: 3px solid var(--brand-purple);
+  background: var(--input-bg);
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 19px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+  transform: translateX(4px);
+  background: var(--chip-bg);
+}
+
+.activity-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* Small helper to constrain content inside Streamlit tabs */
+/* Streamlit tabs inside right panel */
+.right-panel .stTabs [data-baseweb="tab-list"] {
+  gap: 4px !important;
+  overflow-x: hidden !important;
+}
+.right-panel .stTabs [data-baseweb="tab"] {
+  background: var(--input-bg);
+  border-radius: 8px;
+  padding: 4px 8px !important;
+  min-width: auto !important;
+}
+.right-panel .stTabs [aria-selected="true"] {
+  background: var(--brand-purple) !important;
+  color: #fff !important;
+}
+
+/* Prevent long text overflow in items */
+.right-panel .trending-item,
+.right-panel .activity-item {
+  word-break: break-word;
+}
+
+/* Hover state for tabs: turn green when hovering non-selected tabs */
+.right-panel .stTabs [data-baseweb="tab"]:not([aria-selected="true"]):hover {
+  background: var(--brand-green) !important;
+  color: #000 !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Offset a specific Emotion container if present */
+.st-emotion-cache-13gev4o {
+  margin-top: -130px !important;
+}

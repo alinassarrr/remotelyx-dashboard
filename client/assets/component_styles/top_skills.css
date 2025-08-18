@@ -1,0 +1,80 @@
+/* Charts grid */
+.charts-section {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 12px; /* reduced gap */
+	align-items: stretch; /* stretch cards to same height */
+	margin-bottom: 24px;
+}
+
+.chart-card {
+	background: var(--bg-card);
+	border: 1px solid var(--border-color);
+	border-radius: 12px;
+	padding: 24px;
+	transition: all 0.3s ease;
+	box-shadow: 0 2px 4px var(--shadow-color);
+	display: flex; /* fill height */
+	flex-direction: column;
+	height: 530px;
+	margin-bottom: 20px;
+}
+
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+
+.chart-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+
+/* Dropdown */
+.role-filter-dropdown { position: relative; display: inline-block; }
+.dropdown-trigger { display: flex; align-items: center; padding: 8px 16px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 20px; cursor: pointer; transition: all 0.3s ease; min-width: 140px; position: relative; list-style: none; }
+.dropdown-trigger:hover { border-color: var(--brand-purple); background: var(--chip-bg); }
+.selected-role { font-size: 14px; color: var(--text-primary); font-weight: 500; flex: 1; }
+.dropdown-arrow { font-size: 12px; color: var(--text-muted); transition: transform 0.3s ease; position: absolute; right: 16px; }
+.dropdown-menu { position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 4px 20px var(--shadow-color); min-width: 160px; z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; padding: 6px 0; display: flex; flex-direction: column; }
+.role-filter-dropdown[open] .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.role-filter-dropdown[open] .dropdown-arrow { transform: rotate(180deg); }
+.dropdown-item { padding: 10px 16px; cursor: pointer; transition: all 0.2s ease; color: var(--text-secondary); font-size: 14px; text-decoration: none; }
+.dropdown-item:hover { background: var(--input-bg); color: var(--text-primary); }
+
+/* Skills list should grow to fill */
+.skills-list {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	flex: 1;
+	position: relative;
+	height: 280px;
+	width: 100%;
+	overflow: auto;
+	will-change: transform;
+	direction: ltr;
+}
+.skill-item { display: flex; align-items: center; gap: 12px; transition: all 0.3s ease; }
+.skill-name { width: 90px; font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+.skill-bar { flex: 1; height: 28px; background: var(--skill-bar-bg); border-radius: 14px; position: relative; overflow: hidden; }
+.skill-fill { height: 100%; background: linear-gradient(90deg, var(--brand-purple), var(--brand-blue)); border-radius: 14px; transition: width 0.8s ease; }
+.skill-count { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-primary); font-weight: 600; }
+
+/* Donut sizing and center overlay */
+.donut-chart { position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+.donut-chart svg { display: block; }
+.donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 1; pointer-events: none; }
+
+/* Legend chips with tighter spacing */
+.donut-legend { display: flex; flex-direction: row; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 6px; margin-bottom: 8px; }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--chip-bg); border: 1px solid var(--chip-border); border-radius: 16px; }
+.legend-text { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+
+/* Salary card smaller/tighter */
+.salary-info { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; padding: 12px; margin-bottom: 1rem; box-shadow: 0 2px 6px var(--shadow-color); }
+.salary-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; }
+.salary-ranges { display: grid; grid-template-columns: 1fr; gap: 6px; }
+.salary-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; font-size: 12px; }
+.salary-level { color: var(--text-secondary); font-weight: 600; font-size: 9px; }
+.salary-amount { color: var(--brand-green); font-weight: 700; font-size: 9px; }
+
+/* Streamlit layout override: adjust gap */
+.st-emotion-cache-r3ry0f { gap: 2rem !important; }
+
+.charts-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+

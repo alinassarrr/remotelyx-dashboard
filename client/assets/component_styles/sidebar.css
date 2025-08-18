@@ -1,0 +1,482 @@
+/* Force the sidebar title to be inline and fully transparent */
+section[data-testid="stSidebar"] .sidebar-title,
+section[data-testid="stSidebar"] .stMarkdown .sidebar-title,
+.sidebar-title {
+  display: inline-block !important;
+  padding: 0 !important;
+  margin: 0 0 6px 0 !important;
+  line-height: 1.1 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Ensure any container immediately wrapping the title is transparent */
+section[data-testid="stSidebar"] .stMarkdown,
+section[data-testid="stSidebar"] .stMarkdown > div,
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Ensure title has no background anywhere */
+section[data-testid="stSidebar"] .sidebar-title {
+  background: transparent !important;
+}
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+  background: transparent !important;
+}
+
+/* Ensure Streamlit markdown wrappers are transparent and tight */
+section[data-testid="stSidebar"] .stMarkdown {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+section[data-testid="stSidebar"] .stMarkdown > div {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Sections */
+.sidebar-section {
+  flex: 1;
+}
+
+/* Title */
+.sidebar-title {
+  font-size: 18px; /* bigger title */
+  font-weight: 800;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px; /* minimal gap */
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Groups and labels */
+.filter-group {
+  margin-bottom: 4px;
+}
+.filter-label {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 2px; /* minimal gap */
+  display: block;
+  font-weight: 600;
+}
+
+/* Controls */
+.filter-input,
+.filter-select {
+  width: 100%;
+  height: 38px; /* tighter */
+  background: transparent; /* transparent background */
+  border: 1px solid var(--border-color); /* green-ish themed border */
+  border-radius: 8px;
+  padding: 0 12px;
+  color: var(--text-primary);
+  font-size: 15px; /* readable */
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Select: keep transparent and primary text color */
+.filter-select {
+  background: transparent;
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+.filter-select:focus {
+  border-color: var(--border-color);
+  box-shadow: 0 0 0 3px rgba(102, 254, 144, 0.15);
+  background: transparent;
+}
+.filter-select option {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  padding: 8px 12px;
+}
+.filter-select option:hover {
+  background: var(--brand-green);
+  color: #000;
+}
+
+/* Input placeholder and focus */
+.filter-input::placeholder {
+  color: var(--text-primary) !important;
+}
+.filter-input:focus {
+  outline: none;
+  border-color: var(--border-color);
+  box-shadow: 0 0 0 3px rgba(102, 254, 144, 0.15);
+}
+
+/* Chips / results */
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+.chip {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+}
+.chip:hover {
+  border-color: var(--brand-green);
+  transform: scale(1.04);
+}
+.chip.active {
+  background: transparent;
+  border-color: var(--brand-purple);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Search results inline */
+.search-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+.search-result {
+  display: inline-flex;
+  padding: 5px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Actions */
+.filter-actions {
+  padding: 10px 0;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+.btn-apply {
+  flex: 1;
+  padding: 10px;
+  background: var(--brand-purple);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-apply:hover {
+  background: var(--brand-purple-dark);
+  transform: translateY(-1px);
+}
+.btn-clear {
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-clear:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+/* Filter actions layout: inline, small buttons */
+.filter-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+section[data-testid="stSidebar"] .filter-actions .stButton {
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 0 0 auto !important;
+}
+section[data-testid="stSidebar"] .filter-actions .stButton > button {
+  width: auto !important;
+  padding: 6px 12px !important;
+  font-size: 13px !important;
+  line-height: 1.1 !important;
+  white-space: nowrap !important;
+  border-radius: 8px !important;
+}
+/* Primary and secondary styles within filter-actions */
+section[data-testid="stSidebar"]
+  .filter-actions
+  .stButton:first-of-type
+  > button {
+  background: var(--brand-purple) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+section[data-testid="stSidebar"]
+  .filter-actions
+  .stButton:last-of-type
+  > button {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Streamlit sidebar alignment */
+section[data-testid="stSidebar"] {
+  background: var(--bg-secondary) !important;
+  border-right: 1px solid var(--border-color) !important;
+  width: 280px !important;
+  min-width: 280px !important;
+}
+section[data-testid="stSidebar"] > div {
+  width: 100% !important;
+}
+section[data-testid="stSidebar"] > div {
+  padding: 16px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+section[data-testid="stSidebar"] .sidebar-title,
+section[data-testid="stSidebar"] h2:has(> span),
+section[data-testid="stSidebar"] h3:has(> span) {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: var(--text-primary) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  margin-bottom: 6px !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Sidebar input styling - enhanced for both themes */
+section[data-testid="stSidebar"] .stSelectbox,
+section[data-testid="stSidebar"] .stMultiSelect,
+section[data-testid="stSidebar"] .stTextInput,
+section[data-testid="stSidebar"] .stDateInput,
+section[data-testid="stSidebar"] .stNumberInput {
+  margin-bottom: 12px !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stSelectbox"] > div,
+section[data-testid="stSidebar"] [data-testid="stMultiSelect"] > div,
+section[data-testid="stSidebar"] [data-testid="stTextInput"] > div,
+section[data-testid="stSidebar"] [data-testid="stDateInput"] > div,
+section[data-testid="stSidebar"] [data-testid="stNumberInput"] > div {
+  background: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stSelectbox"] > div:focus-within,
+section[data-testid="stSidebar"]
+  [data-testid="stMultiSelect"]
+  > div:focus-within,
+section[data-testid="stSidebar"] [data-testid="stTextInput"] > div:focus-within,
+section[data-testid="stSidebar"] [data-testid="stDateInput"] > div:focus-within,
+section[data-testid="stSidebar"]
+  [data-testid="stNumberInput"]
+  > div:focus-within {
+  border-color: var(--brand-purple) !important;
+  box-shadow: 0 0 0 2px rgba(113, 116, 255, 0.1) !important;
+  background: var(--bg-card) !important;
+}
+
+section[data-testid="stSidebar"] input[type="text"] {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  font-size: 15px !important;
+  border: none !important;
+  outline: none !important;
+  padding: 8px 12px !important;
+}
+
+/* Light mode sidebar adjustments */
+body.light-mode
+  section[data-testid="stSidebar"]
+  [data-testid="stSelectbox"]
+  > div,
+body.light-mode
+  section[data-testid="stSidebar"]
+  [data-testid="stMultiSelect"]
+  > div,
+body.light-mode
+  section[data-testid="stSidebar"]
+  [data-testid="stTextInput"]
+  > div,
+body.light-mode
+  section[data-testid="stSidebar"]
+  [data-testid="stDateInput"]
+  > div,
+body.light-mode
+  section[data-testid="stSidebar"]
+  [data-testid="stNumberInput"]
+  > div {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+body.light-mode section[data-testid="stSidebar"] input[type="text"] {
+  color: #1c2127 !important;
+}
+
+/* Dark mode sidebar adjustments */
+body.dark-mode
+  section[data-testid="stSidebar"]
+  [data-testid="stSelectbox"]
+  > div,
+body.dark-mode
+  section[data-testid="stSidebar"]
+  [data-testid="stMultiSelect"]
+  > div,
+body.dark-mode
+  section[data-testid="stSidebar"]
+  [data-testid="stTextInput"]
+  > div,
+body.dark-mode
+  section[data-testid="stSidebar"]
+  [data-testid="stDateInput"]
+  > div,
+body.dark-mode
+  section[data-testid="stSidebar"]
+  [data-testid="stNumberInput"]
+  > div {
+  background: rgba(113, 116, 255, 0.1) !important;
+  border: 1px solid rgba(113, 116, 255, 0.3) !important;
+}
+
+/* Dropdown menu (BaseWeb) background and sizing inside sidebar */
+section[data-testid="stSidebar"] [data-baseweb="menu"],
+section[data-testid="stSidebar"] [role="listbox"] {
+  background: var(--bg-primary) !important;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  max-height: 280px !important;
+  width: 100% !important;
+  overflow: auto !important;
+}
+/* Ensure inner menu container matches background */
+section[data-testid="stSidebar"] [data-baseweb="menu"] > div {
+  background: var(--bg-primary) !important;
+  background-color: var(--bg-primary) !important;
+}
+/* Ensure all inner elements inherit proper text color */
+section[data-testid="stSidebar"] [data-baseweb="menu"] * {
+  color: var(--text-primary) !important;
+}
+/* Option items background and hover */
+section[data-testid="stSidebar"] [role="option"] {
+  background: var(--bg-primary) !important;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+section[data-testid="stSidebar"] [role="option"]:hover {
+  background: var(--input-bg) !important;
+  background-color: var(--input-bg) !important;
+}
+section[data-testid="stSidebar"] [role="option"][aria-selected="true"] {
+  background: var(--chip-bg) !important;
+  background-color: var(--chip-bg) !important;
+}
+section[data-testid="stSidebar"] [role="option"] {
+  color: var(--text-primary) !important;
+}
+
+/* MultiSelect tag tokens: purple outline and text, minimal gap */
+.st-emotion-cache-tn0cau {
+  gap: 4px !important;
+}
+section[data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] {
+  background: transparent !important;
+  border: 1px solid var(--brand-purple) !important;
+  color: var(--brand-purple) !important;
+}
+section[data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] svg path {
+  fill: var(--brand-purple) !important;
+}
+
+/* Token container gap (fallback generic targeting) */
+/* Reduce gap between selected tokens in MultiSelect regardless of dynamic classnames */
+section[data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] {
+  margin-right: 4px !important;
+}
+section[data-testid="stSidebar"]
+  .stMultiSelect
+  [data-baseweb="tag"]
+  + [data-baseweb="tag"] {
+  margin-left: 0 !important;
+}
+
+/* Focus state */
+section[data-testid="stSidebar"] [data-testid="stSelectbox"] > div:focus-within,
+section[data-testid="stSidebar"]
+  [data-testid="stMultiSelect"]
+  > div:focus-within,
+section[data-testid="stSidebar"] [data-testid="stTextInput"] > div:focus-within,
+section[data-testid="stSidebar"]
+  [data-testid="stDateInput"]
+  > div:focus-within {
+  border-color: var(--border-hover) !important;
+  box-shadow: 0 0 0 3px rgba(102, 254, 144, 0.15) !important;
+}
+
+/* Buttons */
+section[data-testid="stSidebar"] .stButton > button {
+  width: 100% !important;
+  padding: 10px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+section[data-testid="stSidebar"] .stButton > button:first-child {
+  background: var(--brand-purple) !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+section[data-testid="stSidebar"] .stButton + .stButton > button {
+  background: transparent !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Scrollbar for sidebar */
+section[data-testid="stSidebar"]::-webkit-scrollbar {
+  width: 6px;
+}
+section[data-testid="stSidebar"]::-webkit-scrollbar-track {
+  background: var(--input-bg);
+}
+section[data-testid="stSidebar"]::-webkit-scrollbar-thumb {
+  background: var(--brand-purple);
+  border-radius: 3px;
+}

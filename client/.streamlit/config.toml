@@ -1,0 +1,18 @@
+[server]
+headless = true
+port = 8501
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false
+showErrorDetails = false
+
+[theme]
+primaryColor = "#7174ff"
+backgroundColor = "#111417"
+secondaryBackgroundColor = "#1c2127"
+textColor = "#ffffff"
+
+[logger]
+level = "error" 

@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "remotelyx-server"
+version = "1.0.0"
+description = "RemotelyX Backend API - Job Market Analytics for Recruiters"
+authors = ["alinassar <aliinassar8@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.116.1"
+uvicorn = "^0.35.0"
+motor = "^3.7.1"
+pydantic = {extras = ["email"], version = "^2.11.7"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-jose = {extras = ["cryptography"], version = "^3.5.0"}
+pytest = "^8.4.1"
+httpx = "^0.28.1"
+pydantic-settings = "^2.10.1"
+python-dotenv = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api" 
