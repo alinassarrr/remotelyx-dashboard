@@ -37,9 +37,9 @@ async def health_check():
                 "total_jobs": stats.get("total_jobs", 0),
                 "jobs_today": stats.get("jobs_today", 0)
             },
-            "ai": {
-                "ollama_available": True,
-                "model": "llama3.2"
+            "extraction": {
+                "method": "intelligent_keyword_based",
+                "features": ["skills_detection", "salary_extraction", "gamma_app_optimized"]
             }
         }
     except Exception as e:

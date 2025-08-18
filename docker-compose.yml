@@ -9,12 +9,10 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password123
-      MONGO_INITDB_DATABASE: remotelyx_dashboard
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
-      - ./server/migrations/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - remotelyx_network
     healthcheck:
@@ -57,7 +55,8 @@ services:
       - MONGODB_DB=remotelyx_dashboard
       - SECRET_KEY=your-super-secret-key-change-in-production
       - BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:8501","http://localhost:5678"]
-      - OLLAMA_MODEL=llama3.2
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+
     volumes:
       - ./server:/app
     depends_on:
@@ -103,7 +102,9 @@ services:
     container_name: remotelyx_n8n
     restart: unless-stopped
     ports:
-      - "5679:5678"
+      - "5678:5678"
+    extra_hosts:
+      - "backend:172.18.0.5"
     environment:
       # Use SQLite for n8n internal data (lightweight)
       - DB_TYPE=sqlite
@@ -116,8 +117,8 @@ services:
       - N8N_HOST=0.0.0.0
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
-      - WEBHOOK_URL=https://a58098bfe268.ngrok-free.app//
-      - N8N_EDITOR_BASE_URL=https://a58098bfe268.ngrok-free.app//
+      - WEBHOOK_URL=https://0a81ddc18342.ngrok-free.app/
+      - N8N_EDITOR_BASE_URL=https://0a81ddc18342.ngrok-free.app/
       - GENERIC_TIMEZONE=UTC
       - N8N_SECURE_COOKIE=false
       # MongoDB access for workflows (shared with main app)
@@ -151,31 +152,10 @@ services:
       retries: 3
       start_period: 60s
 
-  # Ollama AI Service (Optional - for local AI)
-  ollama:
-    image: ollama/ollama:latest
-    container_name: remotelyx_ollama
-    restart: unless-stopped
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    networks:
-      - remotelyx_network
-    environment:
-      - OLLAMA_HOST=0.0.0.0
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
 volumes:
   mongodb_data:
   redis_data:
   n8n_data:
-  ollama_data:
 
 networks:
   remotelyx_network:

@@ -24,8 +24,7 @@ class Settings(BaseSettings):
     SCRAPER_API_PORT: int = 5000
     DEBUG_MODE: bool = False
     
-    # AI Configuration
-    OLLAMA_MODEL: str = "llama3.2"
+
     
     # Browser Configuration for Scraper
     BROWSER_OPTIONS: List[str] = [
